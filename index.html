@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Programas de Ingeniería · Neptalí Agip</title>
+<meta name="description" content="Programas de ingeniería civil creados por Neptalí Agip: gestión de obra 4D, presupuesto, control de obra y cálculo estructural.">
+<meta property="og:title" content="Programas de Ingeniería · Neptalí Agip">
+<meta property="og:description" content="Herramientas de ingeniería civil que funcionan en el navegador: pruébalas en línea.">
+<style>
+:root{--bg:#0a1626;--panel:#10213a;--line:#21385c;--ink:#eef4ff;--mute:#9fb3d1;--cyan:#38bdf8;--cyan2:#a5e4ff;--orange:#ff9f43;--radius:14px}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+a{color:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:0 16px}
+
+.cover{position:relative;overflow:hidden;padding:12px 0 40px;border-bottom:1px solid var(--line);
+  background:radial-gradient(900px 380px at 85% -10%,rgba(56,189,248,.22),transparent 60%),
+             radial-gradient(700px 300px at 0% 110%,rgba(255,159,67,.14),transparent 60%),linear-gradient(180deg,#0d1d33,#0a1626)}
+.cover::before{content:"";position:absolute;inset:0;opacity:.12;pointer-events:none;
+  background-image:linear-gradient(var(--cyan) 1px,transparent 1px),linear-gradient(90deg,var(--cyan) 1px,transparent 1px),
+                   linear-gradient(rgba(56,189,248,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.5) 1px,transparent 1px);
+  background-size:120px 120px,120px 120px,24px 24px,24px 24px;mask-image:linear-gradient(180deg,#000,transparent 90%)}
+.topnav{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin:0 0 22px}
+.topnav a{text-decoration:none;font-size:13px;font-weight:600;border:1px solid var(--line);border-radius:99px;padding:7px 14px;background:rgba(16,33,58,.8)}
+.topnav a[aria-current]{background:var(--cyan);color:#04223a;border-color:var(--cyan)}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cyan2);
+  border:1px solid rgba(56,189,248,.45);border-radius:99px;padding:5px 12px;background:rgba(56,189,248,.08)}
+.cover h1{font-weight:800;font-size:clamp(34px,8.5vw,64px);line-height:1.04;margin:18px 0 10px;letter-spacing:-.01em}
+.cover h1 em{font-style:normal;color:var(--cyan)}
+.lead{font-size:clamp(16px,3.6vw,19px);color:#d3e0f5;max-width:700px;margin:0 0 20px}
+.author{display:flex;gap:14px;align-items:center;padding:14px 16px;border:1px solid var(--line);border-radius:var(--radius);background:rgba(16,33,58,.8);max-width:520px}
+.seal{flex:none;width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:20px;color:#04223a;
+  background:conic-gradient(from 30deg,var(--cyan),var(--cyan2),var(--orange),var(--cyan));box-shadow:0 0 0 3px #0d1d33,0 0 0 4px rgba(56,189,248,.5)}
+.author b{display:block;font-size:16px}
+.author span{color:var(--mute);font-size:13px}
+.promise{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:22px;max-width:780px}
+.promise div{border:1px solid var(--line);border-radius:12px;padding:12px;background:rgba(16,33,58,.7);font-size:13px;color:#d3e0f5}
+.promise div strong{display:block;color:var(--cyan2);font-size:14px;margin-bottom:2px}
+
+.shelf-title{font-size:22px;margin:32px 0 4px}
+.shelf-sub{color:var(--mute);font-size:13px;margin:0 0 14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:16px}
+.prog{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:var(--radius);background:var(--panel);overflow:hidden}
+.jacket{position:relative;height:150px;display:flex;align-items:flex-end;padding:14px 16px;color:#fff;background:linear-gradient(135deg,var(--c1),var(--c2))}
+.jacket::after{content:"";position:absolute;inset:0;opacity:.18;background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);background-size:20px 20px}
+.glyph{position:absolute;right:14px;top:10px;font-size:52px;z-index:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.35))}
+.jacket h3{position:relative;z-index:1;margin:0;font-size:20px;line-height:1.15;max-width:78%;text-shadow:0 2px 8px rgba(0,0,0,.35)}
+.jacket small{position:absolute;left:16px;top:12px;z-index:1;font-size:11px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.badge{position:absolute;right:12px;bottom:12px;z-index:1;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;background:#04223a;color:var(--cyan2);border-radius:99px;padding:3px 9px}
+.body{padding:14px 16px 16px;display:flex;flex-direction:column;gap:10px;flex:1}
+.desc{margin:0;color:#d3e0f5;font-size:14px}
+.mods{margin:0;padding-left:18px;color:var(--mute);font-size:13px}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-size:11.5px;color:#d3e0f5;border:1px solid var(--line);border-radius:99px;padding:3px 9px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;border-radius:10px;padding:9px 13px;font-size:13.5px;font-weight:700;border:1px solid var(--line);background:#16304f;color:var(--ink);cursor:pointer}
+.btn.primary{background:var(--cyan);border-color:var(--cyan);color:#04223a}
+.btn[aria-disabled=true]{opacity:.4;pointer-events:none}
+.soon{font-size:12.5px;color:var(--orange)}
+
+.custom{margin:36px 0;border:1px dashed rgba(56,189,248,.55);border-radius:var(--radius);padding:22px;background:rgba(56,189,248,.06)}
+.custom h2{margin:0 0 6px;font-size:22px}
+.custom p{margin:0 0 14px;color:#d3e0f5}
+.cross{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:0 0 36px}
+.cross a{display:flex;gap:12px;align-items:center;padding:16px;border:1px solid var(--line);border-radius:var(--radius);text-decoration:none;background:var(--panel)}
+.cross .big{font-size:32px}
+.cross b{display:block;font-size:15px}
+.cross span{color:var(--mute);font-size:12.5px}
+footer{border-top:1px solid var(--line);padding:22px 0 90px;color:var(--mute);font-size:13px}
+footer b{color:var(--ink)}
+
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;border:none;border-radius:99px;padding:13px 18px;background:var(--cyan);color:#04223a;font-weight:800;font-size:14px;box-shadow:0 8px 24px rgba(0,0,0,.45);cursor:pointer}
+.sheet{position:fixed;inset:0;z-index:30;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6)}
+.sheet.open{display:flex}
+.sheet .card{width:100%;max-width:460px;background:var(--panel);border:1px solid var(--line);border-radius:18px 18px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom,0px))}
+.sheet h3{margin:0 0 4px;font-size:20px}
+.sheet p{margin:0 0 16px;color:var(--mute);font-size:14px}
+.sheet .btn{width:100%;padding:12px;margin-bottom:10px;font-size:15px}
+@media(min-width:700px){.sheet{align-items:center}.sheet .card{border-radius:18px}}
+</style>
+</head>
+<body>
+
+<header class="cover">
+  <div class="wrap" style="position:relative">
+    <nav class="topnav"><a href="./" aria-current="page">🛠️ Programas</a><a href="https://neptaliagiphoyos.github.io/Simuladores/">🔬 Simuladores</a><a href="https://neptaliagiphoyos.github.io/Juegos-ni-os/">🎮 Juegos</a><a href="https://neptaliagiphoyos.github.io/El-Sastre-del-Grid/libros/">📖 Libros</a><a href="https://neptaliagiphoyos.github.io/Profe-Agip/">🏫 Biblioteca del Profe Agip</a></nav>
+    <span class="eyebrow">🛠️ Ingeniería civil · en el navegador</span>
+    <h1>Programas de <em>Ingeniería</em></h1>
+    <p class="lead">Herramientas para presupuestar, planificar, controlar y calcular obras. Funcionan en el navegador, sin instalar nada. Prueba la demostración de cada programa antes de pedir la versión completa.</p>
+    <div class="author">
+      <div class="seal">NA</div>
+      <div><b>Creado por Neptalí Agip</b><span>Lima, Perú</span></div>
+    </div>
+    <div class="promise">
+      <div><strong>🏗️ Hechos en obra</strong>Nacen de proyectos reales de edificación y obra pública.</div>
+      <div><strong>🎯 A tu medida</strong>Se adaptan a tu obra, tu presupuesto y tu cronograma.</div>
+      <div><strong>🚀 Seguimos creando</strong>Nuevos programas y mejoras cada mes.</div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <h2 class="shelf-title">Gestión de obra</h2>
+  <p class="shelf-sub">Presupuesto, planos, cronograma y control en un solo archivo.</p>
+  <div class="grid" id="g-gestion"></div>
+
+  <h2 class="shelf-title">Cálculo y metrados</h2>
+  <p class="shelf-sub">Programas en preparación. ¿Te interesa alguno? Escríbeme y lo priorizo.</p>
+  <div class="grid" id="g-calculo"></div>
+
+  <section class="custom">
+    <h2>¿Necesitas un programa para tu obra?</h2>
+    <p>Armo la versión completa con tu proyecto: presupuesto, planos, cronograma, control de obra y simuladores, todo enlazado y listo para presentar.</p>
+    <button class="btn primary" data-feedback>✉️ Solicitar versión completa</button>
+  </section>
+
+  <div class="cross">
+    <a href="https://neptaliagiphoyos.github.io/Simuladores/"><span class="big">🔬</span><div><b>Simuladores →</b><span>Física, astronomía e ingeniería.</span></div></a>
+    <a href="https://neptaliagiphoyos.github.io/Juegos-ni-os/"><span class="big">🎮</span><div><b>Juegos →</b><span>Juegos para jugar en familia.</span></div></a>
+    <a href="https://neptaliagiphoyos.github.io/El-Sastre-del-Grid/libros/"><span class="big">📖</span><div><b>Libros →</b><span>La saga El Sastre de Grid.</span></div></a>
+    <a href="https://neptaliagiphoyos.github.io/Profe-Agip/"><span class="big">🏫</span><div><b>Biblioteca del Profe Agip →</b><span>Material didáctico.</span></div></a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <b>Programas de Ingeniería · una creación de Neptalí Agip</b><br>
+    Las demostraciones usan datos ficticios. La versión completa se entrega a pedido.<br>
+    © <span id="yr"></span> Neptalí Agip · neptaliagiphoyos@gmail.com
+  </div>
+</footer>
+
+<button class="fab" data-feedback>💬 Comentarios</button>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetT">
+  <div class="card">
+    <h3 id="sheetT">Escríbeme</h3>
+    <p>Cuéntame qué programa te interesa, para qué obra lo necesitas o qué mejorarías.</p>
+    <a class="btn primary" id="mail">✉️ Correo · neptaliagiphoyos@gmail.com</a>
+    <button class="btn" id="close">Cerrar</button>
+  </div>
+</div>
+
+<script>
+/* Para agregar un programa: añade un bloque y sube su carpeta o archivo con la ruta de "f".
+   Deja f vacío ("") mientras esté en preparación. */
+const PROGS = [
+  {grp:"g-gestion", t:"Plantilla 4D Integrado", cat:"Gestión de obra", g:"🏗️", c:["#0b4f7a","#1fa0d8"], badge:"Demo",
+   d:"Toda la obra en un solo archivo que funciona sin internet. Esta demostración trae un edificio de ejemplo con datos ficticios.",
+   mods:["Presupuesto y cronograma financiero","Planos, modelo 3D y superposición","Simulador de costo y plazo","Control de obra: curva S, SPI, CPI","Simulador 4D: la obra se arma día a día"],
+   tags:["Presupuesto","Cronograma","4D","Control de obra"], f:"plantilla-4d-demo/"},
+  {grp:"g-calculo", t:"Metrado de Cargas", cat:"Estructuras", g:"⚖️", c:["#3a3f4a","#8a7a5a"],
+   d:"Cargas muertas y vivas de una edificación, paso a paso y con resultados ordenados.", tags:["Estructuras","E.020"], f:""},
+  {grp:"g-calculo", t:"Cálculo de Losas", cat:"Estructuras", g:"🧱", c:["#2a4a3a","#4fa36b"],
+   d:"Losas macizas y aligeradas: momentos, acero y verificaciones.", tags:["Concreto armado","E.060"], f:""},
+  {grp:"g-calculo", t:"Método de Cross", cat:"Estructuras", g:"📐", c:["#3b2a6a","#7b61ff"],
+   d:"Vigas continuas y pórticos por distribución de momentos.", tags:["Análisis estructural"], f:""},
+  {grp:"g-calculo", t:"Columnas, Zapatas y Muros", cat:"Estructuras", g:"🏛️", c:["#5a2f12","#d9792b"],
+   d:"Predimensionamiento y diseño de elementos verticales y cimentaciones.", tags:["Cimentaciones","Concreto armado"], f:""}
+];
+
+const $ = s => document.querySelector(s);
+$("#yr").textContent = new Date().getFullYear();
+const ready = new Set();
+
+function card(p){
+  const on = p.f && ready.has(p.f);
+  return `<article class="prog" style="--c1:${p.c[0]};--c2:${p.c[1]}">
+    <div class="jacket"><small>${p.cat}</small><span class="glyph" aria-hidden="true">${p.g}</span><h3>${p.t}</h3>${p.badge ? `<span class="badge">${p.badge}</span>` : ""}</div>
+    <div class="body">
+      <p class="desc">${p.d}</p>
+      ${p.mods ? `<ul class="mods">${p.mods.map(m => `<li>${m}</li>`).join("")}</ul>` : ""}
+      <div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+      ${p.f ? (on ? "" : `<span class="soon">⏳ Cargando…</span>`) : `<span class="soon">🛠️ En preparación</span>`}
+      <div class="acts">
+        ${p.f ? `<a class="btn primary" href="${p.f}" target="_blank" rel="noopener" aria-disabled="${!on}">▶ Probar demo</a>` : ""}
+        <button class="btn" data-feedback>✉️ ${p.f ? "Pedir versión completa" : "Me interesa"}</button>
+      </div>
+    </div></article>`;
+}
+function render(){
+  ["g-gestion","g-calculo"].forEach(id => { $("#"+id).innerHTML = PROGS.filter(p => p.grp === id).map(card).join(""); });
+}
+render();
+Promise.all(PROGS.filter(p => p.f).map(p => fetch(p.f, {method:"HEAD", cache:"no-store"}).then(r => { if (r.ok) ready.add(p.f); }).catch(() => {})))
+  .then(render);
+
+$("#mail").href = "mailto:neptaliagiphoyos@gmail.com?subject=" + encodeURIComponent("Programas de Ingeniería") + "&body=" + encodeURIComponent("Hola Neptalí, le escribo desde la página de Programas de Ingeniería: ");
+const sheet = $("#sheet");
+document.addEventListener("click", e => {
+  if (e.target.closest("[data-feedback]")) { e.preventDefault(); sheet.classList.add("open"); }
+  if (e.target === sheet || e.target.id === "close") sheet.classList.remove("open");
+});
+</script>
+<!-- Botón de donaciones · Neptalí Agip -->
+<style>
+#don-btn{position:fixed;left:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;border:none;border-radius:99px;padding:13px 18px;background:#ffdd57;color:#2b2100;font:800 14px system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.4);cursor:pointer}
+#don-btn:focus-visible{outline:3px solid #3b82f6;outline-offset:3px}
+#don-sheet{position:fixed;inset:0;z-index:9999;display:none;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+#don-sheet.on{display:flex}
+#don-sheet .dc{width:100%;max-width:460px;background:#fffdf5;color:#1f1a0a;border-radius:20px 20px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom,0px));box-shadow:0 -10px 40px rgba(0,0,0,.35)}
+#don-sheet h3{margin:0 0 6px;font-size:21px}
+#don-sheet p{margin:0 0 16px;color:#5b5240}
+#don-sheet .opt{border:1px solid #eadfbf;border-radius:14px;padding:14px;margin-bottom:12px;background:#fff}
+#don-sheet .opt b{display:block;font-size:16px;margin-bottom:4px}
+#don-sheet .num{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#don-sheet .num span{font-size:22px;font-weight:800;letter-spacing:.04em}
+#don-sheet .db{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:12px;padding:11px 14px;font-weight:800;font-size:15px;text-decoration:none;border:1px solid #d9cfa9;background:#fff8dc;color:#2b2100;cursor:pointer}
+#don-sheet .db.pp{width:100%;background:#0070ba;border-color:#0070ba;color:#fff}
+#don-sheet .db.close{width:100%;background:transparent;margin-top:4px}
+#don-sheet small{color:#7a705a}
+@media(min-width:700px){#don-sheet{align-items:center}#don-sheet .dc{border-radius:20px}}
+</style>
+<button id="don-btn" type="button" aria-haspopup="dialog">☕ Apoya este proyecto</button>
+<div id="don-sheet" role="dialog" aria-modal="true" aria-labelledby="don-t">
+  <div class="dc">
+    <h3 id="don-t">☕ Apoya este proyecto</h3>
+    <p>Todo aquí es gratis. Con tu aporte, por pequeño que sea, seguimos creando más simuladores, juegos y libros. ¡Gracias!</p>
+    <div class="opt">
+      <b>🌎 PayPal o tarjeta (desde cualquier país)</b>
+      <a class="db pp" href="https://www.paypal.com/ncp/payment/G85LGAJYFAEKC" target="_blank" rel="noopener">Donar con PayPal o tarjeta</a>
+    </div>
+    <button class="db close" id="don-close" type="button">Cerrar</button>
+  </div>
+</div>
+<script>
+(function(){
+  var s=document.getElementById('don-sheet');
+  document.getElementById('don-btn').onclick=function(){s.classList.add('on')};
+  document.getElementById('don-close').onclick=function(){s.classList.remove('on')};
+  s.addEventListener('click',function(e){if(e.target===s)s.classList.remove('on')});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')s.classList.remove('on')});
+})();
+</script>
+</body>
+</html>
