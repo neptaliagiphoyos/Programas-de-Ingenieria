@@ -105,8 +105,8 @@ footer b{color:var(--ink)}
   <p class="shelf-sub">Presupuesto, planos, cronograma y control en un solo archivo.</p>
   <div class="grid" id="g-gestion"></div>
 
-  <h2 class="shelf-title">Cálculo y metrados</h2>
-  <p class="shelf-sub">Programas en preparación. ¿Te interesa alguno? Escríbeme y lo priorizo.</p>
+  <h2 class="shelf-title">Cálculo estructural y metrados</h2>
+  <p class="shelf-sub">Diseño y análisis según el RNE, con memoria de cálculo. Gratis en línea.</p>
   <div class="grid" id="g-calculo"></div>
 
   <section class="custom">
@@ -150,14 +150,21 @@ const PROGS = [
    d:"Toda la obra en un solo archivo que funciona sin internet. Esta demostración trae un edificio de ejemplo con datos ficticios.",
    mods:["Presupuesto y cronograma financiero","Planos, modelo 3D y superposición","Simulador de costo y plazo","Control de obra: curva S, SPI, CPI","Simulador 4D: la obra se arma día a día"],
    tags:["Presupuesto","Cronograma","4D","Control de obra"], f:"plantilla-4d-demo/"},
-  {grp:"g-calculo", t:"Metrado de Cargas", cat:"Estructuras", g:"⚖️", c:["#3a3f4a","#8a7a5a"],
-   d:"Cargas muertas y vivas de una edificación, paso a paso y con resultados ordenados.", tags:["Estructuras","E.020"], f:""},
-  {grp:"g-calculo", t:"Cálculo de Losas", cat:"Estructuras", g:"🧱", c:["#2a4a3a","#4fa36b"],
-   d:"Losas macizas y aligeradas: momentos, acero y verificaciones.", tags:["Concreto armado","E.060"], f:""},
-  {grp:"g-calculo", t:"Método de Cross", cat:"Estructuras", g:"📐", c:["#3b2a6a","#7b61ff"],
-   d:"Vigas continuas y pórticos por distribución de momentos.", tags:["Análisis estructural"], f:""},
-  {grp:"g-calculo", t:"Columnas, Zapatas y Muros", cat:"Estructuras", g:"🏛️", c:["#5a2f12","#d9792b"],
-   d:"Predimensionamiento y diseño de elementos verticales y cimentaciones.", tags:["Cimentaciones","Concreto armado"], f:""}
+  {grp:"g-calculo", t:"Metrado de Cargas y Sismo", cat:"Estructuras", g:"🏗️", c:["#4a4a52","#9a8a6a"],
+   d:"Metrado de cargas y análisis sísmico estático (E.030) de un edificio aporticado, con vista 3D, planta, elevación y la hoja Excel paso a paso.",
+   tags:["E.020","E.030","3D"], v:[{n:"Celular",f:"https://neptaliagiphoyos.github.io/Simuladores/metrado-de-cargas-celular.html"},{n:"Computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/metrado-de-cargas-pc.html"}]},
+  {grp:"g-calculo", t:"Losa Maciza en Dos Sentidos", cat:"Concreto armado", g:"🧱", c:["#2a4a3a","#4fa36b"],
+   d:"Diseño por el método directo (E.060/ACI): paños, pórticos, franjas y acero, con la hoja Excel original para comparar.",
+   tags:["Losas","E.060"], v:[{n:"Celular y computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/losa-maciza.html"}]},
+  {grp:"g-calculo", t:"Método de Cross", cat:"Análisis estructural", g:"📐", c:["#3b2a6a","#7b61ff"],
+   d:"Pórticos de varios pisos y vanos: los cinco pasos del método, tabla de distribución y diagrama de momentos, comparado con rigidez.",
+   tags:["Pórticos","Hardy Cross"], v:[{n:"Celular y computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/metodo-de-cross.html"}]},
+  {grp:"g-calculo", t:"ColZapMur: Columnas, Zapatas y Muros", cat:"Concreto armado", g:"🏛️", c:["#5a2f12","#d9792b"],
+   d:"Columnas, zapatas aislada, combinada y conectada, y muro de contención, con esquema a escala, acero y memoria de cálculo.",
+   tags:["Cimentaciones","Muros","E.060"], v:[{n:"Celular",f:"https://neptaliagiphoyos.github.io/Simuladores/colzapmur-celular.html"},{n:"Computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/colzapmur-pc.html"}]},
+  {grp:"g-calculo", t:"Nave Industrial Paramétrica", cat:"Acero", g:"🏭", c:["#5a2a14","#e0754a"],
+   d:"Armadura de acero a dos aguas: dibujo, cargas muerta, viva y viento (E.020), análisis por rigidez y diseño con dobles ángulos (LRFD).",
+   tags:["Acero","Viento","LRFD"], v:[{n:"Celular",f:"https://neptaliagiphoyos.github.io/Simuladores/nave-industrial-celular.html"},{n:"Computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/nave-industrial-pc.html"}]}
 ];
 
 const $ = s => document.querySelector(s);
@@ -172,10 +179,11 @@ function card(p){
       <p class="desc">${p.d}</p>
       ${p.mods ? `<ul class="mods">${p.mods.map(m => `<li>${m}</li>`).join("")}</ul>` : ""}
       <div class="tags">${p.tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
-      ${p.f ? (on ? "" : `<span class="soon">⏳ Cargando…</span>`) : `<span class="soon">🛠️ En preparación</span>`}
+      ${p.v ? "" : (p.f ? (on ? "" : `<span class="soon">⏳ Cargando…</span>`) : `<span class="soon">🛠️ En preparación</span>`)}
       <div class="acts">
+        ${p.v ? p.v.map(v => `<a class="btn primary" href="${v.f}" target="_blank" rel="noopener">▶ ${v.n}</a>`).join("") : ""}
         ${p.f ? `<a class="btn primary" href="${p.f}" target="_blank" rel="noopener" aria-disabled="${!on}">▶ Probar demo</a>` : ""}
-        <button class="btn" data-feedback>✉️ ${p.f ? "Pedir versión completa" : "Me interesa"}</button>
+        <button class="btn" data-feedback>✉️ ${p.f ? "Pedir versión completa" : (p.v ? "Comentar" : "Me interesa")}</button>
       </div>
     </div></article>`;
 }
