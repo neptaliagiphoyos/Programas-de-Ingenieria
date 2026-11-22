@@ -153,27 +153,29 @@ const PROGS = [
   {grp:"g-gestion", t:"Modelo 4D · Puente San Francisco", cat:"Puentes", g:"🌉", c:["#7a3a12","#e0873a"], badge:"Presentación",
    d:"Arco reticulado metálico de 597.82 m sobre el río Apurímac (VRAEM): el puente se construye mes a mes durante los 36 meses del cronograma, con pilotes, torres, voladizo atirantado, cierre de clave y tablero. Solo vista.",
    mods:["Modelo 3D enlazado al cronograma","Curva S y avance programado","Hitos de la obra","Avenida y estiaje del río"],
-   tags:["4D","Puentes","Arco metálico","Cronograma"], v:[{n:"Celular",f:"puente-san-francisco-4d/modelo-4d-puente-san-francisco-celular.html"},{n:"Computadora",f:"puente-san-francisco-4d/modelo-4d-puente-san-francisco-pc.html"}]},
+   tags:["4D","Puentes","Arco metálico","Cronograma"], v:[{n:"Celular",f:"puente-san-francisco-4d/modelo-4d-puente-san-francisco-celular.html"},{n:"Computadora",f:"puente-san-francisco-4d/modelo-4d-puente-san-francisco-pc.html"},{n:"📺 TV (control remoto)",f:"puente-san-francisco-4d/modelo-4d-puente-san-francisco-tv.html"}]},
   {grp:"g-calculo", t:"Metrado de Cargas y Sismo", cat:"Estructuras", g:"🏗️", c:["#4a4a52","#9a8a6a"],
    d:"Metrado de cargas y análisis sísmico estático (E.030) de un edificio aporticado, con vista 3D, planta, elevación y la hoja Excel paso a paso.",
-   tags:["E.020","E.030","3D"], v:[{n:"Celular",f:"https://neptaliagiphoyos.github.io/Simuladores/metrado-de-cargas-celular.html"},{n:"Computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/metrado-de-cargas-pc.html"}]},
+   tags:["E.020","E.030","3D"], v:[{n:"Celular",f:"https://neptaliagiphoyos.github.io/Simuladores/metrado-de-cargas-celular.html"},{n:"Computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/metrado-de-cargas-pc.html"},{n:"📺 TV (control remoto)",f:"https://neptaliagiphoyos.github.io/Simuladores/metrado-de-cargas-tv.html"}]},
   {grp:"g-calculo", t:"Losa Maciza en Dos Sentidos", cat:"Concreto armado", g:"🧱", c:["#2a4a3a","#4fa36b"],
    d:"Diseño por el método directo (E.060/ACI): paños, pórticos, franjas y acero, con la hoja Excel original para comparar.",
-   tags:["Losas","E.060"], v:[{n:"Celular y computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/losa-maciza.html"}]},
+   tags:["Losas","E.060"], v:[{n:"Celular y computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/losa-maciza.html"},{n:"📺 TV (control remoto)",f:"https://neptaliagiphoyos.github.io/Simuladores/losa-maciza-tv.html"}]},
   {grp:"g-calculo", t:"Método de Cross", cat:"Análisis estructural", g:"📐", c:["#3b2a6a","#7b61ff"],
    d:"Pórticos de varios pisos y vanos: los cinco pasos del método, tabla de distribución y diagrama de momentos, comparado con rigidez.",
-   tags:["Pórticos","Hardy Cross"], v:[{n:"Celular y computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/metodo-de-cross.html"}]},
+   tags:["Pórticos","Hardy Cross"], v:[{n:"Celular y computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/metodo-de-cross.html"},{n:"📺 TV (control remoto)",f:"https://neptaliagiphoyos.github.io/Simuladores/metodo-de-cross-tv.html"}]},
   {grp:"g-calculo", t:"ColZapMur: Columnas, Zapatas y Muros", cat:"Concreto armado", g:"🏛️", c:["#5a2f12","#d9792b"],
    d:"Columnas, zapatas aislada, combinada y conectada, y muro de contención, con esquema a escala, acero y memoria de cálculo.",
-   tags:["Cimentaciones","Muros","E.060"], v:[{n:"Celular",f:"https://neptaliagiphoyos.github.io/Simuladores/colzapmur-celular.html"},{n:"Computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/colzapmur-pc.html"}]},
+   tags:["Cimentaciones","Muros","E.060"], v:[{n:"Celular",f:"https://neptaliagiphoyos.github.io/Simuladores/colzapmur-celular.html"},{n:"Computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/colzapmur-pc.html"},{n:"📺 TV (control remoto)",f:"https://neptaliagiphoyos.github.io/Simuladores/colzapmur-tv.html"}]},
   {grp:"g-calculo", t:"Nave Industrial Paramétrica", cat:"Acero", g:"🏭", c:["#5a2a14","#e0754a"],
    d:"Armadura de acero a dos aguas: dibujo, cargas muerta, viva y viento (E.020), análisis por rigidez y diseño con dobles ángulos (LRFD).",
-   tags:["Acero","Viento","LRFD"], v:[{n:"Celular",f:"https://neptaliagiphoyos.github.io/Simuladores/nave-industrial-celular.html"},{n:"Computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/nave-industrial-pc.html"}]}
+   tags:["Acero","Viento","LRFD"], v:[{n:"Celular",f:"https://neptaliagiphoyos.github.io/Simuladores/nave-industrial-celular.html"},{n:"Computadora",f:"https://neptaliagiphoyos.github.io/Simuladores/nave-industrial-pc.html"},{n:"📺 TV (control remoto)",f:"https://neptaliagiphoyos.github.io/Simuladores/nave-industrial-tv.html"}]}
 ];
 
 const $ = s => document.querySelector(s);
 $("#yr").textContent = new Date().getFullYear();
 const ready = new Set();
+if(location.protocol==="file:"){ready.has=function(){return true};}
+
 
 function card(p){
   const on = p.f && ready.has(p.f);
@@ -243,6 +245,69 @@ document.addEventListener("click", e => {
   document.getElementById('don-close').onclick=function(){s.classList.remove('on')};
   s.addEventListener('click',function(e){if(e.target===s)s.classList.remove('on')});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')s.classList.remove('on')});
+})();
+</script>
+<script>/* Navegacion con control remoto (TV) - ES5 */
+(function(){
+  if (window.__tvnav) return; window.__tvnav = 1;
+  var GAME = !!window.__tvgame;
+  var st = document.createElement('style');
+  st.textContent = '.tvfoco{outline:6px solid #ffd400 !important;outline-offset:3px !important;box-shadow:0 0 0 10px rgba(0,0,0,.55) !important;position:relative;z-index:5}';
+  (document.head||document.documentElement).appendChild(st);
+  var SEL = 'a[href],button,input,select,textarea,[tabindex],[onclick],summary';
+  function visible(el){
+    if (el.disabled) return false;
+    var r = el.getBoundingClientRect();
+    if (r.width < 4 || r.height < 4) return false;
+    var cs = window.getComputedStyle(el);
+    return cs.visibility !== 'hidden' && cs.display !== 'none';
+  }
+  function items(){
+    var all = document.querySelectorAll(SEL), out = [];
+    for (var i=0;i<all.length;i++){ if (all[i].getAttribute('tabindex')==='-1') continue; if (visible(all[i])) out.push(all[i]); }
+    return out;
+  }
+  var cur = null;
+  function setFocus(el){
+    if (cur) cur.className = (' '+cur.className+' ').replace(' tvfoco ',' ').replace(/^\s+|\s+$/g,'');
+    cur = el; if (!el) return;
+    el.className += ' tvfoco';
+    if (!el.hasAttribute('tabindex') && !/^(A|BUTTON|INPUT|SELECT|TEXTAREA)$/.test(el.tagName)) el.setAttribute('tabindex','0');
+    try { el.focus({preventScroll:true}); } catch(e){ try{el.focus();}catch(e2){} }
+    var r = el.getBoundingClientRect(), h = window.innerHeight;
+    if (r.top < 60 || r.bottom > h - 60) window.scrollBy(0, r.top - h/2 + r.height/2);
+  }
+  function center(r){ return {x:r.left+r.width/2, y:r.top+r.height/2}; }
+  function move(dir){
+    var list = items(); if (!list.length) return;
+    if (!cur || list.indexOf(cur) < 0){ setFocus(list[0]); return; }
+    var a = cur.getBoundingClientRect(), ca = center(a), best = null, bd = 1e12;
+    for (var i=0;i<list.length;i++){
+      var el = list[i]; if (el === cur) continue;
+      var b = el.getBoundingClientRect(), cb = center(b), dx = cb.x-ca.x, dy = cb.y-ca.y, main, side;
+      if (dir==='R'){ if (b.left < a.right-4 && dx <= 4) continue; main=dx; side=dy; }
+      else if (dir==='L'){ if (b.right > a.left+4 && dx >= -4) continue; main=-dx; side=dy; }
+      else if (dir==='D'){ if (b.top < a.bottom-4 && dy <= 4) continue; main=dy; side=dx; }
+      else { if (b.bottom > a.top+4 && dy >= -4) continue; main=-dy; side=dx; }
+      if (main <= 0) continue;
+      var d = main + Math.abs(side)*2.5;
+      if (d < bd){ bd = d; best = el; }
+    }
+    if (best) setFocus(best);
+    else if (dir==='D') window.scrollBy(0, window.innerHeight*0.6);
+    else if (dir==='U') window.scrollBy(0, -window.innerHeight*0.6);
+  }
+  window.addEventListener('keydown', function(e){
+    if (e.defaultPrevented) return;
+    var t = e.target && e.target.tagName;
+    if (t==='INPUT' || t==='TEXTAREA' || t==='SELECT') { if (e.keyCode!==38 && e.keyCode!==40) return; }
+    var k = e.keyCode || e.which, dir = null;
+    if (k===37) dir='L'; else if (k===38) dir='U'; else if (k===39) dir='R'; else if (k===40) dir='D';
+    if (dir){ if (GAME) return; e.preventDefault(); move(dir); return; }
+    if ((k===13 || k===23 || k===66) && cur && (!GAME || document.activeElement===cur)){ e.preventDefault(); if (cur.tagName==='INPUT'){cur.focus();return;} cur.click(); }
+  }, false);
+  document.addEventListener('focusin', function(e){ var el=e.target; if (el && el!==cur && el.matches && el.matches(SEL)) setFocus(el); });
+  setTimeout(function(){ if (!cur && !GAME){ var l = items(); for (var i=0;i<l.length;i++){ var r=l[i].getBoundingClientRect(); if (r.top>=0 && r.top < window.innerHeight){ setFocus(l[i]); break; } } } }, 900);
 })();
 </script>
 </body>
