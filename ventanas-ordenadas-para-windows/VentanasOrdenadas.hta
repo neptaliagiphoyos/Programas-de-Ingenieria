@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=10">
+<meta charset="utf-8">
+<title>Ventanas Ordenadas para Windows</title>
+<HTA:APPLICATION ID="abrirTrabajo" APPLICATIONNAME="Ventanas Ordenadas para Windows" BORDER="thin" CAPTION="yes"
+    SHOWINTASKBAR="yes" SINGLEINSTANCE="yes" SCROLL="no" WINDOWSTATE="normal" />
+<style>
+  body { font-family: "Segoe UI", Arial, sans-serif; margin: 8px; background: linear-gradient(#e9eef5, #cfd9e6); font-size: 11px; }
+  h3 { margin: 0 0 6px 0; font-size: 12px; color: #223; }
+  #lista { background: #fff; border: 1px inset #aab; padding: 4px; white-space: pre; font-size: 10px; height: 78px; overflow: auto; margin-bottom: 6px; }
+  .b {
+    display: block; width: 100%; margin: 4px 0; padding: 5px 4px; font-size: 11px; cursor: pointer;
+    color: #1b2433; text-shadow: 0 1px 0 #fff;
+    background: linear-gradient(#ffffff, #d9e1ec 55%, #c3cedc);
+    border: 1px solid #7d8aa0; border-top-color: #fff; border-left-color: #fff;
+    border-radius: 4px;
+    box-shadow: 0 2px 0 #6b7892, 0 3px 4px rgba(0,0,0,0.25);
+  }
+  .b:hover { background: linear-gradient(#ffffff, #e6edf7 55%, #d2dcea); }
+  .b:active {
+    transform: translateY(2px);
+    box-shadow: 0 0 0 #6b7892, inset 0 2px 3px rgba(0,0,0,0.3);
+    background: linear-gradient(#c3cedc, #d9e1ec);
+  }
+  .p {
+    color: #fff; text-shadow: 0 -1px 0 #0a3d73;
+    background: linear-gradient(#4aa3ff, #0067c0 55%, #00529c);
+    border: 1px solid #003a70; border-top-color: #7cc0ff; border-left-color: #5ab0ff;
+    box-shadow: 0 2px 0 #003a70, 0 3px 5px rgba(0,0,0,0.35);
+  }
+  .p:active { box-shadow: 0 0 0 #003a70, inset 0 2px 3px rgba(0,0,0,0.4); background: #00529c; }
+  .b.i { display: inline-block; width: auto; padding: 5px 16px; margin: 8px 8px 0 0; }
+
+  /* Visualizador */
+  .ayuda { color: #334; margin-bottom: 4px; }
+  #stage { position: relative; width: 680px; height: 210px; margin-bottom: 4px; }
+  .mon {
+    position: absolute; top: 18px; width: 330px; height: 186px; background-color: #1c2536;
+    background-image: linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(255,255,255,0.08) 1px, transparent 1px);
+    background-size: 27.5px 15.5px;
+    box-shadow: 0 0 0 2px #56637a, 0 3px 6px rgba(0,0,0,0.4);
+  }
+  .monx { background-image: none; background-color: #3a3f4b; border: 1px dashed #9aa3b5; color: #cfd6e6; font-size: 11px; text-align: center; }
+  .monlbl { position: absolute; top: 2px; font-size: 11px; font-weight: bold; color: #223; }
+  .box {
+    position: absolute; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.8);
+    opacity: 0.88; cursor: move; overflow: hidden; border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.45);
+  }
+  .box.sel { border: 2px solid #fff; opacity: 1; z-index: 5; }
+  .bl { padding: 3px 4px; font-size: 10px; font-weight: bold; color: #10151f; }
+  .h { position: absolute; background: #10151f; opacity: 0.35; z-index: 6; }
+  .h:hover { opacity: 0.85; background: #ffffff; }
+  .hn { top: 0; left: 10px; right: 10px; height: 6px; cursor: n-resize; }
+  .hs { bottom: 0; left: 10px; right: 10px; height: 6px; cursor: s-resize; }
+  .he { right: 0; top: 10px; bottom: 10px; width: 6px; cursor: e-resize; }
+  .hw { left: 0; top: 10px; bottom: 10px; width: 6px; cursor: w-resize; }
+  .hnw { left: 0; top: 0; width: 10px; height: 10px; cursor: nw-resize; opacity: 0.7; }
+  .hne { right: 0; top: 0; width: 10px; height: 10px; cursor: ne-resize; opacity: 0.7; }
+  .hsw { left: 0; bottom: 0; width: 10px; height: 10px; cursor: sw-resize; opacity: 0.7; }
+  .hse { right: 0; bottom: 0; width: 10px; height: 10px; cursor: se-resize; opacity: 0.7; }
+  #props { margin: 6px 0 2px 0; }
+</style>
+</head>
+<body>
+
+<div id="principal">
+<h3 id="titulo">Ventanas Ordenadas</h3>
+<div id="lista"></div>
+<table width="100%" cellspacing="4" cellpadding="0" style="table-layout:fixed">
+<tr>
+<td colspan="2"><b>Escritorio:</b> <select id="selEsc" onchange="elegirEscritorio(this.value)" style="width:215px;font-size:11px"></select></td>
+</tr>
+<tr>
+<td><button class="b p" onclick="Accion('1')">Abrir todo</button></td>
+<td><button class="b" onclick="Accion('8')">Solo acomodar</button></td>
+</tr>
+<tr>
+<td><button class="b" onclick="abrirDiseno()">Diseñar vistas</button></td>
+<td><button class="b" onclick="Accion('5')">Quitar</button></td>
+</tr>
+<tr>
+<td><button class="b" onclick="Accion('2')">Agregar web</button></td>
+<td><button class="b" onclick="Accion('3')">Agregar programa</button></td>
+</tr>
+<tr>
+<td><button class="b" onclick="Accion('4')">Agregar app Windows</button></td>
+<td><button class="b" onclick="Accion('9')">Cerrar todo</button></td>
+</tr>
+<tr>
+<td colspan="2"><button class="b" onclick="window.close()">Salir</button></td>
+</tr>
+</table>
+</div>
+
+<div id="diseno" style="display:none">
+<h3>Diseñar vistas</h3>
+<div class="ayuda">Arrastra cada app para moverla (también de un monitor a otro). Para agrandar o achicar, estira cualquier borde o esquina del recuadro.</div>
+<div class="ayuda" id="resumenPantallas"></div>
+<div id="stage">
+  <div class="monlbl" style="left:0px">Monitor 1 (principal)</div>
+  <div class="monlbl" style="left:350px">Monitor 2</div>
+  <div class="mon" style="left:0px"></div>
+  <div class="mon" style="left:350px"></div>
+</div>
+<div id="props">
+  Seleccionada: <select id="selApp" onchange="elegirApp(this.value)"></select> <b id="selnombre" style="display:none"></b> &nbsp;&nbsp;
+  <label><input type="checkbox" id="chkZoom"> Zoom 90%</label> &nbsp;&nbsp;
+  <label><input type="checkbox" id="chkIman" checked> Auto-calce</label> &nbsp;&nbsp;
+  <label><input type="checkbox" id="chkApp"> Modo aplicación (sin barra del navegador)</label> &nbsp;&nbsp;
+  Título de la ventana contiene: <input type="text" id="txtPats" size="26">
+</div>
+<button class="b i p" onclick="guardarDiseno()">Guardar</button><button class="b i" onclick="cerrarDiseno()">Cancelar</button><button class="b i" onclick="restablecerDiseno()">Restablecer</button>
+</div>
+
+<script type="text/vbscript">
+Option Explicit
+
+' Cada escritorio de Windows tiene su propio perfil: su lista de apps y su diseño de ventanas.
+' KEY y LKEY apuntan al perfil del escritorio elegido (ver AplicarPerfil).
+Const BASEKEY = "HKCU\Software\AbrirTrabajo\"
+Const ACTKEY = "HKCU\Software\AbrirTrabajo\EscritorioActual"
+Const ESCRITORIO = "Dashboard"
+Const VDBASE = "HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\VirtualDesktops\"
+Dim KEY, LKEY, perfil, perfilPos
+Dim sh, gf
+Set sh = CreateObject("WScript.Shell")
+
+Sub window_onload()
+    window.resizeTo 340, 400
+    AplicarPerfil
+    Refrescar
+    llenarEscritorios
+End Sub
+
+Sub Refrescar()
+    document.getElementById("titulo").innerText = "Ventanas Ordenadas (v12) - " & perfil
+    document.getElementById("lista").innerText = ListaTexto(LoadList())
+End Sub
+
+Function ClaveApps()
+    ClaveApps = KEY
+End Function
+
+Function ClaveLayout()
+    ClaveLayout = LKEY
+End Function
+
+Function EscritorioActual()
+    EscritorioActual = perfil
+End Function
+
+Function NombreSeguro(s)
+    NombreSeguro = Trim(Replace(Replace(Replace(s, "\", "-"), "/", "-"), "|", "-"))
+End Function
+
+' Lee qué escritorio está elegido y apunta las claves de registro a su perfil.
+Sub AplicarPerfil()
+    Dim v, f, p
+    v = ""
+    On Error Resume Next
+    v = sh.RegRead(ACTKEY)
+    If Err.Number <> 0 Then
+        Err.Clear
+        v = ""
+    End If
+    On Error GoTo 0
+    If InStr(v, "|") = 0 Then
+        p = FindDesktop(ESCRITORIO)
+        If p > 0 Then
+            v = p & "|" & ESCRITORIO
+        Else
+            v = "1|" & NombreDeEscritorio(1)
+        End If
+        sh.RegWrite ACTKEY, v, "REG_SZ"
+    End If
+    f = Split(v, "|", 2)
+    perfilPos = CInt(f(0))
+    perfil = f(1)
+    KEY = BASEKEY & "Perfiles\" & NombreSeguro(perfil) & "\Apps"
+    LKEY = BASEKEY & "Perfiles\" & NombreSeguro(perfil) & "\Layout"
+End Sub
+
+Sub SeleccionarEscritorio(pos, nombre)
+    sh.RegWrite ACTKEY, pos & "|" & nombre, "REG_SZ"
+    AplicarPerfil
+    Refrescar
+End Sub
+
+' Lo primero que se guarda en el perfil "Dashboard" es lo que ya tenías configurado
+' (claves antiguas). Los demás escritorios empiezan vacíos para configurarlos desde cero.
+Function LeerAntigua(nombre)
+    LeerAntigua = ""
+    On Error Resume Next
+    LeerAntigua = sh.RegRead(BASEKEY & nombre)
+    If Err.Number <> 0 Then
+        Err.Clear
+        LeerAntigua = ""
+    End If
+    On Error GoTo 0
+End Function
+
+Sub Accion(op)
+    Select Case op
+        Case "1"
+            AbrirTodo LoadList()
+            window.close
+        Case "2": AgregarWeb
+        Case "3": AgregarPrograma
+        Case "4": AgregarApp
+        Case "5": Quitar
+        Case "8": IrAEscritorio : AcomodarVentanas
+        Case "9": IrAEscritorio : CerrarTodo
+    End Select
+    Refrescar
+End Sub
+
+Function DefaultList()
+    ' nombre|tipo|destino|navegador|modo aplicación (1 = sin barra del navegador)
+    DefaultList = "WhatsApp (Edge)|url|https://web.whatsapp.com|msedge|1~" & _
+                  "WhatsApp (Chrome)|url|https://web.whatsapp.com|chrome|1~" & _
+                  "Gmail (Chrome)|url|https://mail.google.com|chrome|0~" & _
+                  "Outlook|programa|outlook.exe||0~" & _
+                  "Claude|app|Claude||0"
+End Function
+
+Function LoadList()
+    Dim v
+    On Error Resume Next
+    v = sh.RegRead(KEY)
+    If Err.Number <> 0 Then
+        Err.Clear
+        v = ""
+        If LCase(perfil) = LCase(ESCRITORIO) Then
+            v = LeerAntigua("Apps")
+            If Trim(v) = "" Then v = DefaultList()
+        End If
+        sh.RegWrite KEY, v, "REG_SZ"
+    End If
+    On Error GoTo 0
+    LoadList = NormApps(v)
+End Function
+
+' Completa las apps guardadas con versiones anteriores (agrega el campo "modo aplicación").
+' Los WhatsApp web de Chrome/Edge pasan a modo aplicación.
+Function NormApps(v)
+    Dim r, rr, f, nuevo, cambio, modo
+    nuevo = ""
+    cambio = False
+    For Each r In Split(v, "~")
+        If Trim(r) <> "" Then
+            rr = r
+            f = Split(r, "|")
+            If UBound(f) < 4 Then
+                modo = "0"
+                If UBound(f) >= 3 Then
+                    If f(1) = "url" And (f(3) = "chrome" Or f(3) = "msedge") And InStr(1, f(2), "whatsapp", vbTextCompare) > 0 Then modo = "1"
+                End If
+                rr = r & "|" & modo
+                cambio = True
+            End If
+            nuevo = nuevo & rr & "~"
+        End If
+    Next
+    If cambio Then
+        sh.RegWrite KEY, nuevo, "REG_SZ"
+        NormApps = nuevo
+    Else
+        NormApps = v
+    End If
+End Function
+
+' Layout: nombre|monitor|x|y|ancho|alto|zoom90|titulo  (posiciones en milésimas del monitor)
+Function DefaultLayout()
+    ' nombre|monitor|x|y|ancho|alto|zoom90|título contiene|programa (chrome, msedge o vacío)
+    DefaultLayout = "Claude|1|0|0|667|1000|0|Claude|~" & _
+                    "Outlook|1|667|0|333|1000|0|Outlook|~" & _
+                    "Gmail (Chrome)|2|0|0|500|1000|1|Gmail|chrome~" & _
+                    "WhatsApp (Edge)|2|500|0|500|500|1|WhatsApp|msedge~" & _
+                    "WhatsApp (Chrome)|2|500|500|500|500|1|WhatsApp|chrome"
+End Function
+
+Function LoadLayout()
+    Dim v
+    On Error Resume Next
+    v = sh.RegRead(LKEY)
+    If Err.Number <> 0 Then
+        Err.Clear
+        v = ""
+        If LCase(perfil) = LCase(ESCRITORIO) Then
+            v = LeerAntigua("Layout")
+            If Trim(v) = "" Then v = DefaultLayout()
+        End If
+        sh.RegWrite LKEY, v, "REG_SZ"
+    End If
+    On Error GoTo 0
+    LoadLayout = NormLayout(v)
+End Function
+
+' Convierte diseños guardados con versiones anteriores: el navegador pasa de formar
+' parte del título ("WhatsApp;Edge") a un campo propio (programa msedge/chrome).
+Function NormLayout(v)
+    Dim r, rr, f, nuevo, cambio, pats, proc
+    nuevo = ""
+    cambio = False
+    For Each r In Split(v, "~")
+        If Trim(r) <> "" Then
+            f = Split(r, "|")
+            If UBound(f) = 7 Then
+                pats = f(7)
+                proc = ""
+                If InStr(1, pats, ";Edge", vbTextCompare) > 0 Then
+                    proc = "msedge"
+                    pats = Replace(pats, ";Edge", "", 1, -1, vbTextCompare)
+                ElseIf InStr(1, pats, ";Chrome", vbTextCompare) > 0 Then
+                    proc = "chrome"
+                    pats = Replace(pats, ";Chrome", "", 1, -1, vbTextCompare)
+                ElseIf InStr(1, f(0), "(Chrome)", vbTextCompare) > 0 Then
+                    proc = "chrome"
+                ElseIf InStr(1, f(0), "(Edge)", vbTextCompare) > 0 Then
+                    proc = "msedge"
+                End If
+                f(7) = pats
+                ReDim Preserve f(8)
+                f(8) = proc
+                rr = Join(f, "|")
+                cambio = True
+            Else
+                rr = r
+            End If
+            nuevo = nuevo & rr & "~"
+        End If
+    Next
+    If cambio Then
+        sh.RegWrite LKEY, nuevo, "REG_SZ"
+        NormLayout = nuevo
+    Else
+        NormLayout = v
+    End If
+End Function
+
+Function EnLista(nombre)
+    Dim r, f
+    EnLista = False
+    For Each r In Split(LoadList(), "~")
+        If Trim(r) <> "" Then
+            f = Split(r, "|")
+            If f(0) = nombre Then
+                EnLista = True
+                Exit Function
+            End If
+        End If
+    Next
+End Function
+
+Function Limpia(s)
+    Limpia = Replace(Replace(Trim(s), "|", "/"), "~", "-")
+End Function
+
+Sub AddRec(rec)
+    Dim v
+    v = LoadList()
+    If Trim(v) <> "" Then
+        If Right(v, 1) <> "~" Then v = v & "~"
+    End If
+    sh.RegWrite KEY, v & rec, "REG_SZ"
+    Refrescar
+End Sub
+
+Function ListaTexto(v)
+    Dim s, r, f, i
+    s = ""
+    i = 0
+    For Each r In Split(v, "~")
+        If Trim(r) <> "" Then
+            i = i + 1
+            f = Split(r, "|")
+            s = s & i & ". " & f(0) & "  [" & f(1) & ": " & f(2) & "]" & vbCrLf
+        End If
+    Next
+    If i = 0 Then s = "(sin apps en este escritorio)" & vbCrLf & "Usa Agregar web / programa / app." & vbCrLf
+    ListaTexto = s
+End Function
+
+' ---------- Mapeo de pantallas ----------
+
+' Devuelve "n|ancho1|alto1|ancho2|alto2" con los monitores de ESTA computadora (píxeles reales).
+Function MapearPantallas()
+    Dim fso, ps, ruta, ts, t
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    ps = sh.ExpandEnvironmentStrings("%TEMP%") & "\AbrirTrabajoPantallas.ps1"
+    ruta = sh.ExpandEnvironmentStrings("%TEMP%") & "\AbrirTrabajoPantallas.txt"
+    If fso.FileExists(ruta) Then fso.DeleteFile ruta, True
+    Set gf = fso.CreateTextFile(ps, True)
+    Ln "Add-Type -MemberDefinition '[DllImport(^user32.dll^)] public static extern bool SetProcessDPIAware();' -Name DP -Namespace NN"
+    Ln "[NN.DP]::SetProcessDPIAware() | Out-Null"
+    Ln "Add-Type -AssemblyName System.Windows.Forms"
+    Ln "$s = [System.Windows.Forms.Screen]::AllScreens"
+    Ln "$p = $s | Where-Object { $_.Primary } | Select-Object -First 1"
+    Ln "$o = $s | Where-Object { -not $_.Primary } | Select-Object -First 1"
+    Ln "$r = [string]$s.Count + '|' + $p.Bounds.Width + '|' + $p.Bounds.Height"
+    Ln "if ($o) { $r += '|' + $o.Bounds.Width + '|' + $o.Bounds.Height } else { $r += '|0|0' }"
+    Ln "Set-Content -Path '" & ruta & "' -Value $r"
+    gf.Close
+    sh.Run "powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File """ & ps & """", 0, True
+    t = "1|1920|1080|0|0"
+    If fso.FileExists(ruta) Then
+        Set ts = fso.OpenTextFile(ruta, 1, False)
+        If Not ts.AtEndOfStream Then t = Trim(ts.ReadLine)
+        ts.Close
+    End If
+    MapearPantallas = t
+End Function
+
+' ---------- Acomodo de ventanas (según el diseño guardado) ----------
+
+Sub LnVD()
+    Ln "[ComImport, Guid(^a5cd92ff-29be-454c-8d04-d82879fb3f1b^), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]"
+    Ln "public interface IVDM { [PreserveSig] int IsWindowOnCurrentVirtualDesktop(IntPtr h, out bool b); }"
+    Ln "public static class VD {"
+    Ln "  static IVDM m;"
+    Ln "  public static bool Aqui(IntPtr h) {"
+    Ln "    try { if (m == null) m = (IVDM)Activator.CreateInstance(Type.GetTypeFromCLSID(new Guid(^aa509086-5ca9-4c25-8f95-589d3c07b48a^))); bool b; int r = m.IsWindowOnCurrentVirtualDesktop(h, out b); return r != 0 || b; } catch { return true; }"
+    Ln "  }"
+    Ln "}"
+End Sub
+
+Sub Ln(s)
+    gf.WriteLine Replace(s, "^", Chr(34))
+End Sub
+
+Function LayoutPath()
+    LayoutPath = sh.ExpandEnvironmentStrings("%TEMP%") & "\AbrirTrabajoLayout.ps1"
+End Function
+
+Sub WriteLayout()
+    Dim fso, r, f, p, pats, mon, z, procf, logp
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set gf = fso.CreateTextFile(LayoutPath(), True)
+    ' Registro de lo que hace el acomodo (para diagnosticar si algo no se mueve)
+    If fso.FolderExists("C:\Auto Ejecutables") Then
+        logp = "C:\Auto Ejecutables\log-acomodo.txt"
+    Else
+        logp = sh.ExpandEnvironmentStrings("%TEMP%") & "\log-acomodo.txt"
+    End If
+    Ln "Start-Transcript -Path ^" & logp & "^ -Force | Out-Null"
+    Ln "Add-Type -AssemblyName System.Windows.Forms"
+    Ln "$c = @'"
+    Ln "using System;"
+    Ln "using System.Text;"
+    Ln "using System.Collections.Generic;"
+    Ln "using System.Runtime.InteropServices;"
+    LnVD
+    Ln "public class W {"
+    Ln "  public delegate bool EnumP(IntPtr h, IntPtr l);"
+    Ln "  [DllImport(^user32.dll^)] public static extern bool EnumWindows(EnumP cb, IntPtr l);"
+    Ln "  [DllImport(^user32.dll^)] public static extern bool IsWindowVisible(IntPtr h);"
+    Ln "  [DllImport(^user32.dll^)] public static extern int GetWindowTextLength(IntPtr h);"
+    Ln "  [DllImport(^user32.dll^, CharSet = CharSet.Unicode)] public static extern int GetWindowText(IntPtr h, StringBuilder s, int n);"
+    Ln "  [DllImport(^user32.dll^)] public static extern bool MoveWindow(IntPtr h, int x, int y, int w, int hh, bool r);"
+    Ln "  [DllImport(^user32.dll^)] public static extern bool ShowWindow(IntPtr h, int n);"
+    Ln "  [DllImport(^user32.dll^)] public static extern bool SetForegroundWindow(IntPtr h);"
+    Ln "  public struct RECT { public int Left, Top, Right, Bottom; }"
+    Ln "  [DllImport(^user32.dll^)] public static extern bool GetWindowRect(IntPtr h, out RECT r);"
+    Ln "  [DllImport(^dwmapi.dll^)] public static extern int DwmGetWindowAttribute(IntPtr h, int a, out RECT r, int s);"
+    Ln "  public static int[] Insets(IntPtr h) {"
+    Ln "    RECT a, b;"
+    Ln "    if (!GetWindowRect(h, out a)) return new int[] { 0, 0, 0, 0 };"
+    Ln "    if (DwmGetWindowAttribute(h, 9, out b, 16) != 0) return new int[] { 0, 0, 0, 0 };"
+    Ln "    return new int[] { b.Left - a.Left, b.Top - a.Top, a.Right - b.Right, a.Bottom - b.Bottom };"
+    Ln "  }"
+    Ln "  [DllImport(^user32.dll^)] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);"
+    Ln "  public static string Proc(IntPtr h) {"
+    Ln "    try { uint pid; GetWindowThreadProcessId(h, out pid); return System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower(); }"
+    Ln "    catch { return ^^; }"
+    Ln "  }"
+    Ln "  public static string[] Dump() {"
+    Ln "    List<string> r = new List<string>();"
+    Ln "    EnumWindows((h, l) => {"
+    Ln "      if (IsWindowVisible(h) && VD.Aqui(h)) {"
+    Ln "        int n = GetWindowTextLength(h);"
+    Ln "        if (n > 0) { StringBuilder sb = new StringBuilder(n + 1); GetWindowText(h, sb, sb.Capacity); r.Add(Proc(h) + ^ | ^ + sb.ToString()); }"
+    Ln "      }"
+    Ln "      return true;"
+    Ln "    }, IntPtr.Zero);"
+    Ln "    return r.ToArray();"
+    Ln "  }"
+    Ln "  public static IntPtr Find(string[] pats, string proc) {"
+    Ln "    IntPtr found = IntPtr.Zero;"
+    Ln "    EnumWindows((h, l) => {"
+    Ln "      if (!IsWindowVisible(h) || !VD.Aqui(h)) return true;"
+    Ln "      int n = GetWindowTextLength(h);"
+    Ln "      if (n == 0) return true;"
+    Ln "      StringBuilder sb = new StringBuilder(n + 1);"
+    Ln "      GetWindowText(h, sb, sb.Capacity);"
+    Ln "      string t = sb.ToString();"
+    Ln "      foreach (string p in pats) if (t.IndexOf(p, StringComparison.OrdinalIgnoreCase) < 0) return true;"
+    Ln "      if (proc.Length > 0 && Proc(h) != proc) return true;"
+    Ln "      found = h; return false;"
+    Ln "    }, IntPtr.Zero);"
+    Ln "    return found;"
+    Ln "  }"
+    Ln "}"
+    Ln "'@"
+    Ln "Add-Type -TypeDefinition $c"
+    Ln "[W]::Dump() | ForEach-Object { Write-Host ('VENTANA ' + $_) }"
+    ' Pantallas con zoom de Windows (125%, 150%...): trabajar en píxeles reales
+    Ln "Add-Type -MemberDefinition '[DllImport(^user32.dll^)] public static extern bool SetProcessDPIAware();' -Name DP -Namespace NN"
+    Ln "[NN.DP]::SetProcessDPIAware() | Out-Null"
+    Ln "$scr = [System.Windows.Forms.Screen]::AllScreens"
+    Ln "$prim = $scr | Where-Object { $_.Primary } | Select-Object -First 1"
+    Ln "$sec = $scr | Where-Object { -not $_.Primary } | Select-Object -First 1"
+    Ln "if (-not $sec) { $sec = $prim }"
+    ' Cada tarea: titulo(s), programa, area del monitor, x, y, ancho, alto (milésimas), zoom 90%
+    Ln "$tareas = @()"
+    Ln "function Mover($t, $h, $zoom) {"
+    Ln "  $wa = $t[2]"
+    Ln "  [W]::ShowWindow($h, 9) | Out-Null"
+    Ln "  $x = [int]($wa.X + $t[3] * $wa.Width / 1000)"
+    Ln "  $y = [int]($wa.Y + $t[4] * $wa.Height / 1000)"
+    Ln "  $ww = [int]($t[5] * $wa.Width / 1000)"
+    Ln "  $hh = [int]($t[6] * $wa.Height / 1000)"
+    Ln "  [W]::MoveWindow($h, $x, $y, $ww, $hh, $true) | Out-Null"
+    Ln "  $ins = [W]::Insets($h)"
+    Ln "  [W]::MoveWindow($h, $x - $ins[0], $y - $ins[1], $ww + $ins[0] + $ins[2], $hh + $ins[1] + $ins[3], $true) | Out-Null"
+    Ln "  if ($zoom -and $t[7]) {"
+    Ln "    $caret = [string][char]94"
+    Ln "    [W]::SetForegroundWindow($h) | Out-Null"
+    Ln "    Start-Sleep -Milliseconds 400"
+    Ln "    [System.Windows.Forms.SendKeys]::SendWait($caret + '0')"
+    Ln "    Start-Sleep -Milliseconds 150"
+    Ln "    [System.Windows.Forms.SendKeys]::SendWait($caret + '-')"
+    Ln "  }"
+    Ln "}"
+    For Each r In Split(LoadLayout(), "~")
+        If Trim(r) <> "" Then
+            f = Split(r, "|")
+            If UBound(f) >= 7 Then
+                If EnLista(f(0)) Then
+                    pats = ""
+                    For Each p In Split(f(7), ";")
+                        If Trim(p) <> "" Then
+                            If pats <> "" Then pats = pats & ","
+                            pats = pats & "^" & Replace(Replace(Trim(p), "^", ""), "$", "") & "^"
+                        End If
+                    Next
+                    If pats <> "" Then
+                        mon = "$prim"
+                        If f(1) = "2" Then mon = "$sec"
+                        z = "$false"
+                        If f(6) = "1" Then z = "$true"
+                        procf = ""
+                        If UBound(f) >= 8 Then procf = Replace(Replace(Trim(f(8)), "^", ""), "$", "")
+                        Ln "$tareas += ,@(@(" & pats & "), ^" & procf & "^, " & mon & ".WorkingArea, " & CInt(f(2)) & ", " & CInt(f(3)) & ", " & CInt(f(4)) & ", " & CInt(f(5)) & ", " & z & ")"
+                    End If
+                End If
+            End If
+        End If
+    Next
+    ' Busca todas las ventanas a la vez (sin esperar una por una), hasta 5 s,
+    ' y vuelve a acomodarlas al final por si la aplicación cambió su tamaño al terminar de abrir.
+    Ln "$pend = New-Object System.Collections.ArrayList"
+    Ln "foreach ($t in $tareas) { [void]$pend.Add($t) }"
+    Ln "$puestas = @()"
+    Ln "for ($i = 0; $i -lt 42 -and $pend.Count -gt 0; $i++) {"
+    Ln "  foreach ($t in @($pend)) {"
+    Ln "    $h = [W]::Find([string[]]$t[0], [string]$t[1])"
+    Ln "    if ($h.ToInt64() -ne 0) {"
+    Ln "      Write-Host ('PUESTA ' + ($t[0] -join ',') + ' proc=' + $t[1])"
+    Ln "      Mover $t $h $true"
+    Ln "      [void]$pend.Remove($t)"
+    Ln "      $puestas += ,@($t, $h)"
+    Ln "    }"
+    Ln "  }"
+    Ln "  if ($pend.Count -gt 0) { Start-Sleep -Milliseconds 120 }"
+    Ln "}"
+    Ln "Start-Sleep -Milliseconds 400"
+    Ln "foreach ($q in $puestas) { Mover $q[0] $q[1] $false }"
+    Ln "foreach ($t in $pend) { Write-Host ('NO ENCONTRADA ' + ($t[0] -join ',') + ' proc=' + $t[1]) }"
+    Ln "Stop-Transcript | Out-Null"
+    gf.Close
+End Sub
+
+Sub AcomodarVentanas()
+    WriteLayout
+    sh.Run "powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File """ & LayoutPath() & """", 0, False
+End Sub
+
+' ---------- Escritorios virtuales ----------
+
+Function Hx(b)
+    Hx = Right("0" & Hex(b), 2)
+End Function
+
+' Devuelve los escritorios de Windows como "posición|nombre~posición|nombre...".
+' Si un escritorio no tiene nombre, se llama "Escritorio N".
+Function ListaEscritorios()
+    Dim ids, cnt, i, b, g, nm, s
+    s = ""
+    On Error Resume Next
+    ids = sh.RegRead(VDBASE & "VirtualDesktopIDs")
+    If Err.Number <> 0 Then
+        Err.Clear
+        On Error GoTo 0
+        ListaEscritorios = "1|Escritorio 1"
+        Exit Function
+    End If
+    On Error GoTo 0
+    cnt = (UBound(ids) + 1) \ 16
+    For i = 0 To cnt - 1
+        b = i * 16
+        g = Hx(ids(b + 3)) & Hx(ids(b + 2)) & Hx(ids(b + 1)) & Hx(ids(b)) & "-" & _
+            Hx(ids(b + 5)) & Hx(ids(b + 4)) & "-" & Hx(ids(b + 7)) & Hx(ids(b + 6)) & "-" & _
+            Hx(ids(b + 8)) & Hx(ids(b + 9)) & "-" & Hx(ids(b + 10)) & Hx(ids(b + 11)) & _
+            Hx(ids(b + 12)) & Hx(ids(b + 13)) & Hx(ids(b + 14)) & Hx(ids(b + 15))
+        nm = ""
+        On Error Resume Next
+        nm = sh.RegRead(VDBASE & "Desktops\{" & g & "}\Name")
+        If Err.Number <> 0 Then
+            Err.Clear
+            nm = ""
+        End If
+        On Error GoTo 0
+        If Trim(nm) = "" Then nm = "Escritorio " & (i + 1)
+        If s <> "" Then s = s & "~"
+        s = s & (i + 1) & "|" & nm
+    Next
+    If s = "" Then s = "1|Escritorio 1"
+    ListaEscritorios = s
+End Function
+
+Function NombreDeEscritorio(pos)
+    Dim r, f
+    NombreDeEscritorio = "Escritorio " & pos
+    For Each r In Split(ListaEscritorios(), "~")
+        f = Split(r, "|", 2)
+        If UBound(f) = 1 Then
+            If CInt(f(0)) = pos Then NombreDeEscritorio = f(1)
+        End If
+    Next
+End Function
+
+' Posición (1, 2, 3...) del escritorio con ese nombre; 0 si no hay ninguno con ese nombre.
+Function FindDesktop(nombre)
+    Dim r, f
+    FindDesktop = 0
+    For Each r In Split(ListaEscritorios(), "~")
+        f = Split(r, "|", 2)
+        If UBound(f) = 1 Then
+            If LCase(f(1)) = LCase(nombre) Then
+                FindDesktop = CInt(f(0))
+                Exit Function
+            End If
+        End If
+    Next
+End Function
+
+' Posición del escritorio del perfil actual: por nombre si lo tiene, o la guardada al elegirlo.
+Function DesktopPos()
+    Dim p
+    p = FindDesktop(perfil)
+    If p < 1 Then p = perfilPos
+    If p < 1 Then p = 1
+    DesktopPos = p
+End Function
+
+' Índice (1, 2, 3...) del escritorio donde estás ahora; 0 si no se puede saber.
+Function EscritorioActualIdx()
+    Dim cur, ids, cnt, i, b, k, igual
+    EscritorioActualIdx = 0
+    On Error Resume Next
+    cur = sh.RegRead(VDBASE & "CurrentVirtualDesktop")
+    ids = sh.RegRead(VDBASE & "VirtualDesktopIDs")
+    If Err.Number <> 0 Then
+        Err.Clear
+        On Error GoTo 0
+        Exit Function
+    End If
+    On Error GoTo 0
+    If UBound(cur) <> 15 Then Exit Function
+    cnt = (UBound(ids) + 1) \ 16
+    For i = 0 To cnt - 1
+        b = i * 16
+        igual = True
+        For k = 0 To 15
+            If ids(b + k) <> cur(k) Then igual = False
+        Next
+        If igual Then
+            EscritorioActualIdx = i + 1
+            Exit Function
+        End If
+    Next
+End Function
+
+' Cambia al escritorio n con el mínimo de pulsaciones (nada si ya estás en él).
+Sub CambiarA(n)
+    Dim fso, act, izq, der
+    act = EscritorioActualIdx()
+    If act > 0 Then
+        If act = n Then Exit Sub
+        izq = 0
+        der = 0
+        If n < act Then izq = act - n Else der = n - act
+    Else
+        izq = 12
+        der = n - 1
+    End If
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set gf = fso.CreateTextFile(sh.ExpandEnvironmentStrings("%TEMP%") & "\AbrirTrabajoEscritorio.ps1", True)
+    Ln "Add-Type -TypeDefinition @'"
+    Ln "using System;"
+    Ln "using System.Runtime.InteropServices;"
+    Ln "public class K {"
+    Ln "  [DllImport(^user32.dll^)] public static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);"
+    Ln "}"
+    Ln "'@"
+    Ln "function Combo($k) {"
+    Ln "  [K]::keybd_event(0x11, 0, 0, [UIntPtr]::Zero)"
+    Ln "  [K]::keybd_event(0x5B, 0, 0, [UIntPtr]::Zero)"
+    Ln "  [K]::keybd_event($k, 0, 0, [UIntPtr]::Zero)"
+    Ln "  Start-Sleep -Milliseconds 30"
+    Ln "  [K]::keybd_event($k, 0, 2, [UIntPtr]::Zero)"
+    Ln "  [K]::keybd_event(0x5B, 0, 2, [UIntPtr]::Zero)"
+    Ln "  [K]::keybd_event(0x11, 0, 2, [UIntPtr]::Zero)"
+    Ln "  Start-Sleep -Milliseconds 120"
+    Ln "}"
+    Ln "for ($i = 0; $i -lt " & izq & "; $i++) { Combo 0x25 }"
+    Ln "for ($i = 0; $i -lt " & der & "; $i++) { Combo 0x27 }"
+    Ln "Start-Sleep -Milliseconds 250"
+    gf.Close
+    sh.Run "powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File """ & sh.ExpandEnvironmentStrings("%TEMP%") & "\AbrirTrabajoEscritorio.ps1""", 0, True
+End Sub
+
+' ---------- Cerrar las aplicaciones de la lista ----------
+
+Sub WriteCerrar(modo, ruta, ps)
+    Dim fso, r, f, pats, p
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set gf = fso.CreateTextFile(ps, True)
+    Ln "Add-Type -TypeDefinition @'"
+    Ln "using System;"
+    Ln "using System.Text;"
+    Ln "using System.Collections.Generic;"
+    Ln "using System.Runtime.InteropServices;"
+    LnVD
+    Ln "public class WC {"
+    Ln "  public delegate bool EnumP(IntPtr h, IntPtr l);"
+    Ln "  [DllImport(^user32.dll^)] public static extern bool EnumWindows(EnumP cb, IntPtr l);"
+    Ln "  [DllImport(^user32.dll^)] public static extern bool IsWindowVisible(IntPtr h);"
+    Ln "  [DllImport(^user32.dll^)] public static extern int GetWindowTextLength(IntPtr h);"
+    Ln "  [DllImport(^user32.dll^, CharSet = CharSet.Unicode)] public static extern int GetWindowText(IntPtr h, StringBuilder s, int n);"
+    Ln "  [DllImport(^user32.dll^)] public static extern bool PostMessage(IntPtr h, uint m, IntPtr w, IntPtr l);"
+    Ln "  public static string Title(IntPtr h) {"
+    Ln "    int n = GetWindowTextLength(h);"
+    Ln "    if (n == 0) return ^^;"
+    Ln "    StringBuilder sb = new StringBuilder(n + 1);"
+    Ln "    GetWindowText(h, sb, sb.Capacity);"
+    Ln "    return sb.ToString();"
+    Ln "  }"
+    Ln "  [DllImport(^user32.dll^)] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);"
+    Ln "  public static string Proc(IntPtr h) {"
+    Ln "    try { uint pid; GetWindowThreadProcessId(h, out pid); return System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower(); }"
+    Ln "    catch { return ^^; }"
+    Ln "  }"
+    Ln "  public static IntPtr[] Matches(string[] pats, string proc) {"
+    Ln "    List<IntPtr> r = new List<IntPtr>();"
+    Ln "    EnumWindows((h, l) => {"
+    Ln "      if (!IsWindowVisible(h) || !VD.Aqui(h)) return true;"
+    Ln "      string t = Title(h);"
+    Ln "      if (t.Length == 0 || t.Contains(^Ventanas Ordenadas^)) return true;"
+    Ln "      foreach (string p in pats) if (t.IndexOf(p, StringComparison.OrdinalIgnoreCase) < 0) return true;"
+    Ln "      if (proc.Length > 0 && Proc(h) != proc) return true;"
+    Ln "      r.Add(h);"
+    Ln "      return true;"
+    Ln "    }, IntPtr.Zero);"
+    Ln "    return r.ToArray();"
+    Ln "  }"
+    Ln "  public static bool Cerrar(IntPtr h) { return PostMessage(h, 0x0010, IntPtr.Zero, IntPtr.Zero); }"
+    Ln "}"
+    Ln "'@"
+    Ln "$modo = ^" & modo & "^"
+    Ln "$ruta = ^" & ruta & "^"
+    Ln "$vistos = @{}"
+    Ln "$res = New-Object System.Collections.ArrayList"
+    Ln "function Buscar($pats, $proc) {"
+    Ln "  foreach ($h in [WC]::Matches([string[]]$pats, [string]$proc)) {"
+    Ln "    $k = $h.ToInt64()"
+    Ln "    if ($vistos.ContainsKey($k)) { continue }"
+    Ln "    $vistos[$k] = 1"
+    Ln "    if ($modo -eq ^listar^) { [void]$res.Add([WC]::Title($h)) }"
+    Ln "    else { [void][WC]::Cerrar($h) }"
+    Ln "  }"
+    Ln "}"
+    For Each r In Split(LoadList(), "~")
+        If Trim(r) <> "" Then
+            f = Split(r, "|")
+            pats = ""
+            For Each p In Split(PatsDe(f(0)), ";")
+                If Trim(p) <> "" Then
+                    If pats <> "" Then pats = pats & ","
+                    pats = pats & "^" & Replace(Replace(Trim(p), "^", ""), "$", "") & "^"
+                End If
+            Next
+            If pats <> "" Then Ln "Buscar @(" & pats & ") ^" & Replace(Replace(ProcDe(f(0)), "^", ""), "$", "") & "^"
+        End If
+    Next
+    Ln "if ($modo -eq ^listar^) { $res | Set-Content -Path $ruta -Encoding Unicode }"
+    gf.Close
+End Sub
+
+Sub CerrarTodo()
+    Dim fso, ruta, ps, ts, txt, resp, cmd
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    ruta = sh.ExpandEnvironmentStrings("%TEMP%") & "\AbrirTrabajoCerrar.txt"
+    ps = sh.ExpandEnvironmentStrings("%TEMP%") & "\AbrirTrabajoCerrar.ps1"
+    cmd = "powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File """ & ps & """"
+    If fso.FileExists(ruta) Then fso.DeleteFile ruta, True
+    WriteCerrar "listar", ruta, ps
+    sh.Run cmd, 0, True
+    txt = ""
+    If fso.FileExists(ruta) Then
+        Set ts = fso.OpenTextFile(ruta, 1, False, -1)
+        If Not ts.AtEndOfStream Then txt = ts.ReadAll
+        ts.Close
+    End If
+    If Trim(txt) = "" Then
+        LeerVentanas
+        MsgBox "No identifiqué ventanas de las apps de este escritorio (" & perfil & ")." & vbCrLf & vbCrLf & _
+               "Ventanas que veo aquí (programa | título):" & vbCrLf & ventanas & vbCrLf & _
+               "Si ves tu app en esta lista, entra a Diseñar vistas, elígela y escribe en " & _
+               "'Título de la ventana contiene' una parte de ese título.", 64, "Cerrar todo"
+        Exit Sub
+    End If
+    resp = MsgBox("Se cerrarán estas ventanas:" & vbCrLf & vbCrLf & txt & vbCrLf & _
+                  "Si hay trabajo sin guardar, cada aplicación te preguntará antes de cerrar." & vbCrLf & _
+                  "¿Continuar?", 36, "Cerrar todo")
+    If resp <> 6 Then Exit Sub
+    WriteCerrar "cerrar", ruta, ps
+    sh.Run cmd, 0, True
+End Sub
+
+' ---------- Abrir y configurar ----------
+
+' ¿Existe ese programa? (ruta completa, carpeta PATH o "App Paths" de Windows)
+Function ProgramaExiste(cmd)
+    Dim fso, exe, args, d, base, v
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    SepararComando cmd, exe, args
+    ProgramaExiste = True
+    If InStr(exe, "\") > 0 Or InStr(exe, ":") > 0 Then
+        ProgramaExiste = fso.FileExists(sh.ExpandEnvironmentStrings(exe))
+        Exit Function
+    End If
+    If InStr(exe, ".") = 0 Then exe = exe & ".exe"
+    For Each d In Split(sh.ExpandEnvironmentStrings("%PATH%") & ";" & sh.ExpandEnvironmentStrings("%SystemRoot%\System32"), ";")
+        If Trim(d) <> "" Then
+            If fso.FileExists(d & "\" & exe) Then Exit Function
+        End If
+    Next
+    On Error Resume Next
+    v = sh.RegRead("HKCU\Software\Microsoft\Windows\CurrentVersion\App Paths\" & exe & "\")
+    If Err.Number <> 0 Then
+        Err.Clear
+        v = sh.RegRead("HKLM\Software\Microsoft\Windows\CurrentVersion\App Paths\" & exe & "\")
+    End If
+    If Err.Number = 0 Then
+        On Error GoTo 0
+        Exit Function
+    End If
+    Err.Clear
+    On Error GoTo 0
+    ProgramaExiste = False
+End Function
+
+' Nombre para buscar en el menú inicio cuando el programa no está en una ruta (Claude.exe -> Claude).
+Function NombreInicio(cmd)
+    Dim exe, args, n
+    SepararComando cmd, exe, args
+    n = exe
+    If InStrRev(n, "\") > 0 Then n = Mid(n, InStrRev(n, "\") + 1)
+    If LCase(Right(n, 4)) = ".exe" Then n = Left(n, Len(n) - 4)
+    NombreInicio = n
+End Function
+
+' Separa "ruta.exe argumentos" (con o sin comillas) en programa y argumentos.
+Sub SepararComando(cmd, exe, args)
+    Dim c, k
+    c = Trim(cmd)
+    exe = c
+    args = ""
+    If Left(c, 1) = Chr(34) Then
+        k = InStr(2, c, Chr(34))
+        If k > 0 Then
+            exe = Mid(c, 2, k - 2)
+            args = Trim(Mid(c, k + 1))
+        Else
+            exe = Mid(c, 2)
+        End If
+    Else
+        k = InStr(1, c, ".exe ", vbTextCompare)
+        If k > 0 Then
+            exe = Left(c, k + 3)
+            args = Trim(Mid(c, k + 5))
+        End If
+    End If
+    exe = Replace(exe, Chr(34), "")
+End Sub
+
+Sub StartItem(rec)
+    Dim f, shap, modo, exe, args
+    f = Split(rec, "|")
+    If UBound(f) < 3 Then Exit Sub
+    Set shap = CreateObject("Shell.Application")
+    Select Case f(1)
+        Case "url"
+            If f(3) = "msedge" Or f(3) = "chrome" Then
+                modo = "0"
+                If UBound(f) >= 4 Then modo = f(4)
+                If modo = "1" Then
+                    shap.ShellExecute f(3), "--app=" & f(2), "", "open", 1
+                Else
+                    shap.ShellExecute f(3), "--new-window " & f(2), "", "open", 1
+                End If
+            Else
+                shap.ShellExecute f(2), "", "", "open", 1
+            End If
+        Case "programa"
+            If LCase(f(2)) = "outlook.exe" Then
+                AbrirAppInicio "Outlook", f(0)
+            ElseIf Not ProgramaExiste(f(2)) Then
+                AbrirAppInicio NombreInicio(f(2)), f(0)
+            Else
+                SepararComando f(2), exe, args
+                shap.ShellExecute exe, args, "", "open", 1
+            End If
+        Case "app"
+            AbrirAppInicio f(2), f(0)
+    End Select
+End Sub
+
+Sub WriteAppScript(ps)
+    Dim fso
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    Set gf = fso.CreateTextFile(ps, True)
+    Ln "param($patron)"
+    Ln "$ErrorActionPreference = 'SilentlyContinue'"
+    ' 1) Menú inicio
+    Ln "$apps = Get-StartApps"
+    Ln "$a = $apps | Where-Object { $_.Name -like ^*$patron*^ } | Select-Object -First 1"
+    Ln "if ($a) { $a.AppID; exit }"
+    ' 2) Aplicaciones de la Tienda / MSIX (Claude, Outlook nuevo)
+    Ln "$pk = Get-AppxPackage -Name ^*$patron*^ | Where-Object { -not $_.IsFramework } | Select-Object -First 1"
+    Ln "if ($pk) {"
+    Ln "  $m = Get-AppxPackageManifest $pk"
+    Ln "  $id = $m.Package.Applications.Application | Select-Object -First 1 -ExpandProperty Id"
+    Ln "  if ($id) { $pk.PackageFamilyName + '!' + $id; exit }"
+    Ln "}"
+    ' 3) Accesos directos del menú inicio
+    Ln "$dirs = @(^$env:ProgramData\Microsoft\Windows\Start Menu\Programs^, ^$env:APPDATA\Microsoft\Windows\Start Menu\Programs^)"
+    Ln "$l = Get-ChildItem $dirs -Recurse -Filter '*.lnk' | Where-Object { $_.BaseName -like ^*$patron*^ } | Select-Object -First 1"
+    Ln "if ($l) { 'LNK:' + $l.FullName; exit }"
+    ' 4) Outlook clásico
+    Ln "if ($patron -like '*Outlook*') {"
+    Ln "  $rutas = @('C:\Program Files\Microsoft Office\root\Office16\OUTLOOK.EXE', 'C:\Program Files (x86)\Microsoft Office\root\Office16\OUTLOOK.EXE')"
+    Ln "  foreach ($r in $rutas) { if (Test-Path $r) { 'EXE:' + $r; exit } }"
+    Ln "}"
+    Ln "'NOTFOUND'"
+    Ln "$apps | Where-Object { $_.Name -match $patron -or $_.Name -match 'Outlook|Mail|Correo|Claude' } | ForEach-Object { $_.Name }"
+    Ln "Get-AppxPackage | Where-Object { $_.Name -match 'Claude|Outlook' } | ForEach-Object { 'pkg: ' + $_.Name }"
+    gf.Close
+End Sub
+
+Function PsExe()
+    Dim fso, w
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    w = sh.ExpandEnvironmentStrings("%windir%")
+    If fso.FolderExists(w & "\Sysnative") Then
+        PsExe = """" & w & "\Sysnative\WindowsPowerShell\v1.0\powershell.exe"""
+    Else
+        PsExe = "powershell"
+    End If
+End Function
+
+Sub AbrirAppInicio(patron, nombre)
+    Dim ps, ex
+    ps = sh.ExpandEnvironmentStrings("%TEMP%") & "\AbrirTrabajoApp.ps1"
+    WriteAppScript ps
+    Set ex = sh.Exec(PsExe() & " -NoProfile -ExecutionPolicy Bypass -File """ & ps & """ -patron """ & patron & """")
+    LanzarResultado ex.StdOut.ReadAll, patron, nombre
+End Sub
+
+' Abre la app según lo que encontró la búsqueda en el menú inicio.
+Sub LanzarResultado(salida, patron, nombre)
+    Dim shap, out
+    Set shap = CreateObject("Shell.Application")
+    out = Trim(salida)
+    If out = "" Then
+        MsgBox "No se pudo buscar en el menú inicio: " & nombre, 48, "Ventanas Ordenadas"
+    ElseIf Left(out, 8) = "NOTFOUND" Then
+        MsgBox "No se encontró '" & nombre & "' en el menú inicio." & vbCrLf & vbCrLf & _
+               "Apps parecidas que sí aparecen:" & vbCrLf & Trim(Mid(out, 9)), 48, "Ventanas Ordenadas"
+    ElseIf Left(out, 4) = "EXE:" Or Left(out, 4) = "LNK:" Then
+        shap.ShellExecute Trim(Mid(out, 5)), "", "", "open", 1
+    Else
+        shap.ShellExecute "explorer.exe", "shell:AppsFolder\" & Split(out, vbCrLf)(0), "", "open", 1
+    End If
+End Sub
+
+' ---------- Detectar apps que ya están abiertas ----------
+
+Dim ventanas
+
+Sub LeerVentanas()
+    Dim fso, ruta, ps, ts
+    ventanas = ""
+    ruta = sh.ExpandEnvironmentStrings("%TEMP%") & "\AbrirTrabajoVentanas.txt"
+    ps = sh.ExpandEnvironmentStrings("%TEMP%") & "\AbrirTrabajoListar.ps1"
+    Set fso = CreateObject("Scripting.FileSystemObject")
+    If fso.FileExists(ruta) Then fso.DeleteFile ruta, True
+    Set gf = fso.CreateTextFile(ps, True)
+    Ln "Add-Type -TypeDefinition @'"
+    Ln "using System;"
+    Ln "using System.Text;"
+    Ln "using System.Collections.Generic;"
+    Ln "using System.Runtime.InteropServices;"
+    LnVD
+    Ln "public class L {"
+    Ln "  public delegate bool EnumP(IntPtr h, IntPtr l);"
+    Ln "  [DllImport(^user32.dll^)] public static extern bool EnumWindows(EnumP cb, IntPtr l);"
+    Ln "  [DllImport(^user32.dll^)] public static extern bool IsWindowVisible(IntPtr h);"
+    Ln "  [DllImport(^user32.dll^)] public static extern int GetWindowTextLength(IntPtr h);"
+    Ln "  [DllImport(^user32.dll^, CharSet = CharSet.Unicode)] public static extern int GetWindowText(IntPtr h, StringBuilder s, int n);"
+    Ln "  [DllImport(^user32.dll^)] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);"
+    Ln "  public static string Proc(IntPtr h) {"
+    Ln "    try { uint pid; GetWindowThreadProcessId(h, out pid); return System.Diagnostics.Process.GetProcessById((int)pid).ProcessName.ToLower(); }"
+    Ln "    catch { return ^^; }"
+    Ln "  }"
+    Ln "  public static string[] All() {"
+    Ln "    List<string> r = new List<string>();"
+    Ln "    EnumWindows((h, l) => {"
+    Ln "      if (IsWindowVisible(h) && VD.Aqui(h)) {"
+    Ln "        int n = GetWindowTextLength(h);"
+    Ln "        if (n > 0) { StringBuilder sb = new StringBuilder(n + 1); GetWindowText(h, sb, sb.Capacity); r.Add(Proc(h) + ^|^ + sb.ToString()); }"
+    Ln "      }"
+    Ln "      return true;"
+    Ln "    }, IntPtr.Zero);"
+    Ln "    return r.ToArray();"
+    Ln "  }"
+    Ln "}"
+    Ln "'@"
+    Ln "[L]::All() | Set-Content -Path ^" & ruta & "^ -Encoding Unicode"
+    gf.Close
+    sh.Run "powershell -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File """ & ps & """", 0, True
+    If fso.FileExists(ruta) Then
+        Set ts = fso.OpenTextFile(ruta, 1, False, -1)
+        If Not ts.AtEndOfStream Then ventanas = ts.ReadAll
+        ts.Close
+    End If
+End Sub
+
+Function PatsDe(nombre)
+    Dim r, f
+    PatsDe = ""
+    For Each r In Split(LoadLayout(), "~")
+        If Trim(r) <> "" Then
+            f = Split(r, "|")
+            If UBound(f) >= 7 Then
+                If f(0) = nombre Then PatsDe = f(7)
+            End If
+        End If
+    Next
+    If Trim(PatsDe) = "" Then PatsDe = Split(Trim(nombre) & " ", " ")(0)
+End Function
+
+' Programa dueño de la ventana (chrome, msedge) según el diseño; vacío = cualquiera.
+Function ProcDe(nombre)
+    Dim r, f
+    ProcDe = ""
+    For Each r In Split(LoadLayout(), "~")
+        If Trim(r) <> "" Then
+            f = Split(r, "|")
+            If UBound(f) >= 8 Then
+                If f(0) = nombre Then ProcDe = LCase(Trim(f(8)))
+            End If
+        End If
+    Next
+End Function
+
+Function AppAbierta(nombre)
+    Dim pats, proc, linea, ok, tiene, p, k, lproc, ltitulo
+    AppAbierta = False
+    pats = PatsDe(nombre)
+    proc = ProcDe(nombre)
+    For Each linea In Split(ventanas, vbCrLf)
+        If Trim(linea) <> "" Then
+            k = InStr(linea, "|")
+            lproc = ""
+            ltitulo = linea
+            If k > 0 Then
+                lproc = Left(linea, k - 1)
+                ltitulo = Mid(linea, k + 1)
+            End If
+            ok = True
+            tiene = False
+            If proc <> "" And LCase(lproc) <> proc Then ok = False
+            For Each p In Split(pats, ";")
+                If Trim(p) <> "" Then
+                    tiene = True
+                    If InStr(1, ltitulo, Trim(p), vbTextCompare) = 0 Then ok = False
+                End If
+            Next
+            If ok And tiene Then
+                AppAbierta = True
+                Exit Function
+            End If
+        End If
+    Next
+End Function
+
+Sub IrAEscritorio()
+    CambiarA DesktopPos()
+End Sub
+
+Sub AbrirTodo(v)
+    Dim r, f, n, nombres(40), procs(40), rutas(40), pend(40), k, ex
+    CambiarA DesktopPos()
+    LeerVentanas
+    n = 0
+    ' 1) Lanza ya todo lo rápido (navegadores y programas) y arranca en paralelo la búsqueda
+    '    de las apps del menú inicio (Outlook, Claude...), que es lo más lento.
+    For Each r In Split(v, "~")
+        If Trim(r) <> "" Then
+            f = Split(r, "|")
+            If Not AppAbierta(f(0)) Then
+                If f(1) = "app" Or (f(1) = "programa" And (LCase(f(2)) = "outlook.exe" Or Not ProgramaExiste(f(2)))) Then
+                    If n < 40 Then
+                        If f(1) = "app" Then
+                            nombres(n) = f(2)
+                        ElseIf LCase(f(2)) = "outlook.exe" Then
+                            nombres(n) = "Outlook"
+                        Else
+                            nombres(n) = NombreInicio(f(2))
+                        End If
+                        procs(n) = f(0)
+                        rutas(n) = sh.ExpandEnvironmentStrings("%TEMP%") & "\AbrirTrabajoApp" & n & ".ps1"
+                        WriteAppScript rutas(n)
+                        Set ex = sh.Exec(PsExe() & " -NoProfile -ExecutionPolicy Bypass -File """ & rutas(n) & """ -patron """ & nombres(n) & """")
+                        Set pend(n) = ex
+                        n = n + 1
+                    End If
+                Else
+                    StartItem r
+                End If
+            End If
+        End If
+    Next
+    ' 2) Recoge los resultados de las búsquedas y abre esas apps
+    For k = 0 To n - 1
+        LanzarResultado pend(k).StdOut.ReadAll, nombres(k), procs(k)
+    Next
+    AcomodarVentanas
+End Sub
+
+Sub AgregarWeb()
+    Dim n, u, b, nav, modo
+    n = Limpia(InputBox("Nombre (ej. Gmail (Chrome))", "Agregar web"))
+    If n = "" Then Exit Sub
+    u = Limpia(InputBox("Dirección (ej. https://mail.google.com)", "Agregar web"))
+    If u = "" Then Exit Sub
+    b = Trim(InputBox("Navegador: 1 = Edge, 2 = Chrome, 3 = predeterminado", "Agregar web", "3"))
+    If b = "1" Then
+        nav = "msedge"
+    ElseIf b = "2" Then
+        nav = "chrome"
+    Else
+        nav = ""
+    End If
+    modo = "0"
+    If nav <> "" Then
+        If MsgBox("¿Abrir en modo aplicación (sin pestañas ni barra de direcciones)?", 36, "Agregar web") = 6 Then modo = "1"
+    End If
+    AddRec n & "|url|" & u & "|" & nav & "|" & modo
+End Sub
+
+Sub AgregarPrograma()
+    Dim n, p
+    n = Limpia(InputBox("Nombre (ej. Excel)", "Agregar programa"))
+    If n = "" Then Exit Sub
+    p = Limpia(InputBox("Ruta o comando (ej. excel.exe)", "Agregar programa"))
+    If p = "" Then Exit Sub
+    AddRec n & "|programa|" & p & "|"
+End Sub
+
+Sub AgregarApp()
+    Dim n, p
+    n = Limpia(InputBox("Nombre (ej. Teams)", "Agregar app de Windows"))
+    If n = "" Then Exit Sub
+    p = Limpia(InputBox("Texto del nombre en el menú inicio (ej. Teams)", "Agregar app de Windows"))
+    If p = "" Then Exit Sub
+    AddRec n & "|app|" & p & "|"
+End Sub
+
+Sub Quitar()
+    Dim v, num, idx, k, r, nuevo
+    v = LoadList()
+    num = Trim(InputBox(ListaTexto(v) & vbCrLf & "Número a quitar:", "Quitar"))
+    If Not IsNumeric(num) Or num = "" Then Exit Sub
+    idx = CInt(num)
+    k = 0
+    nuevo = ""
+    For Each r In Split(v, "~")
+        If Trim(r) <> "" Then
+            k = k + 1
+            If k <> idx Then nuevo = nuevo & r & "~"
+        End If
+    Next
+    sh.RegWrite KEY, nuevo, "REG_SZ"
+    Refrescar
+End Sub
+</script>
+
+<script language="javascript">
+// ---------- Visualizador de vistas ----------
+var shJ = new ActiveXObject("WScript.Shell");
+var MW = 330, MH = 186, GAP = 20, TOP = 18, SNAP = 24;
+var colores = ["#4aa3ff", "#ffb454", "#5fd68a", "#ff7b72", "#c39bff", "#f4d35e", "#4fd1c5", "#ff9ecd"];
+var cajas = [], sel = null, drag = null;
+var stage = document.getElementById("stage");
+var chkZoom = document.getElementById("chkZoom");
+var txtPats = document.getElementById("txtPats");
+
+var chkApp = document.getElementById("chkApp");
+chkZoom.onclick = function () { if (sel) { sel.zoom = this.checked; } };
+chkApp.onclick = function () { if (sel && sel.esweb) { sel.app = this.checked ? "1" : "0"; } };
+txtPats.onkeyup = function () { if (sel) { sel.pats = this.value; } };
+
+// Auto-calce: al soltar un recuadro, sus bordes se pegan a los bordes del monitor
+// y a los de otros recuadros que estén a menos de IMAN divisiones de la cuadrícula.
+var IMAN = 2, IKEY = "HKCU\\Software\\AbrirTrabajo\\Iman";
+var chkIman = document.getElementById("chkIman");
+chkIman.onclick = function () { try { shJ.RegWrite(IKEY, this.checked ? "1" : "0", "REG_SZ"); } catch (e) { } };
+
+function objetivos(c, eje) {
+  var t = [0, SNAP], i, o, a, b;
+  for (i = 0; i < cajas.length; i++) {
+    o = cajas[i];
+    if (o === c || o.mon != c.mon) { continue; }
+    if (eje == "x") { a = Math.round(o.fx * SNAP / 1000); b = a + Math.round(o.fw * SNAP / 1000); }
+    else { a = Math.round(o.fy * SNAP / 1000); b = a + Math.round(o.fh * SNAP / 1000); }
+    t.push(a, b);
+  }
+  return t;
+}
+
+function desvio(t, a, b) {
+  var best = 0, bestAbs = 99, i, d;
+  for (i = 0; i < t.length; i++) {
+    d = t[i] - a;
+    if (Math.abs(d) <= IMAN && Math.abs(d) < bestAbs) { best = d; bestAbs = Math.abs(d); }
+    d = t[i] - b;
+    if (Math.abs(d) <= IMAN && Math.abs(d) < bestAbs) { best = d; bestAbs = Math.abs(d); }
+  }
+  return best;
+}
+
+document.onmousemove = function (e) {
+  e = e || window.event;
+  if (!drag) { return; }
+  var dx = e.clientX - drag.ox, dy = e.clientY - drag.oy, el = drag.c.el;
+  if (drag.resize) {
+    var m = drag.resize, l = drag.l, t = drag.t, w = drag.w, h = drag.h;
+    var minW = MW / SNAP, minH = MH / SNAP;
+    if (m.indexOf("e") >= 0) { w = Math.max(minW, drag.w + dx); }
+    if (m.indexOf("s") >= 0) { h = Math.max(minH, drag.h + dy); }
+    if (m.indexOf("w") >= 0) { w = Math.max(minW, drag.w - dx); l = drag.l + drag.w - w; }
+    if (m.indexOf("n") >= 0) { h = Math.max(minH, drag.h - dy); t = drag.t + drag.h - h; }
+    el.style.left = l + "px"; el.style.top = t + "px";
+    el.style.width = w + "px"; el.style.height = h + "px";
+  } else {
+    el.style.left = (drag.l + dx) + "px";
+    el.style.top = (drag.t + dy) + "px";
+  }
+};
+
+document.onmouseup = function () {
+  if (!drag) { return; }
+  var c = drag.c, el = c.el, gw, gh, gx, gy;
+  if (drag.resize) {
+    var rl = parseFloat(el.style.left), rt = parseFloat(el.style.top);
+    var rmx = (c.mon - 1) * (MW + GAP);
+    gx = Math.round((rl - rmx) / MW * SNAP);
+    gy = Math.round((rt - TOP) / MH * SNAP);
+    var gr = Math.round((rl + el.offsetWidth - rmx) / MW * SNAP);
+    var gb = Math.round((rt + el.offsetHeight - TOP) / MH * SNAP);
+    if (chkIman.checked) {
+      var mm = drag.resize, tx = objetivos(c, "x"), ty = objetivos(c, "y");
+      if (mm.indexOf("w") >= 0) { gx += desvio(tx, gx, gx); }
+      if (mm.indexOf("e") >= 0) { gr += desvio(tx, gr, gr); }
+      if (mm.indexOf("n") >= 0) { gy += desvio(ty, gy, gy); }
+      if (mm.indexOf("s") >= 0) { gb += desvio(ty, gb, gb); }
+    }
+    gx = Math.max(0, Math.min(SNAP - 1, gx)); gy = Math.max(0, Math.min(SNAP - 1, gy));
+    gr = Math.max(gx + 1, Math.min(SNAP, gr)); gb = Math.max(gy + 1, Math.min(SNAP, gb));
+    c.fx = Math.round(gx * 1000 / SNAP); c.fy = Math.round(gy * 1000 / SNAP);
+    c.fw = Math.round((gr - gx) * 1000 / SNAP); c.fh = Math.round((gb - gy) * 1000 / SNAP);
+  } else {
+    gw = Math.round(c.fw * SNAP / 1000); gh = Math.round(c.fh * SNAP / 1000);
+    var left = parseFloat(el.style.left), top = parseFloat(el.style.top);
+    c.mon = (left + el.offsetWidth / 2) > (MW + GAP / 2) ? 2 : 1;
+    var mx = (c.mon - 1) * (MW + GAP);
+    gx = Math.round((left - mx) / MW * SNAP); gy = Math.round((top - TOP) / MH * SNAP);
+    if (chkIman.checked) {
+      gx += desvio(objetivos(c, "x"), gx, gx + gw);
+      gy += desvio(objetivos(c, "y"), gy, gy + gh);
+    }
+    gx = Math.max(0, Math.min(SNAP - gw, gx)); gy = Math.max(0, Math.min(SNAP - gh, gy));
+    c.fx = Math.round(gx * 1000 / SNAP); c.fy = Math.round(gy * 1000 / SNAP);
+  }
+  colocarEl(c);
+  drag = null;
+};
+
+function colocarEl(c) {
+  c.el.style.left = ((c.mon - 1) * (MW + GAP) + c.fx / 1000 * MW) + "px";
+  c.el.style.top = (TOP + c.fy / 1000 * MH) + "px";
+  c.el.style.width = (c.fw / 1000 * MW) + "px";
+  c.el.style.height = (c.fh / 1000 * MH) + "px";
+}
+
+var zTop = 10;
+function seleccionar(c) {
+  for (var i = 0; i < cajas.length; i++) { cajas[i].el.className = "box"; }
+  sel = c;
+  if (c) {
+    c.el.className = "box sel";
+    zTop++; c.el.style.zIndex = zTop;
+    try { document.getElementById("selApp").value = c.nombre; } catch (e) {}
+    document.getElementById("selnombre").innerText = c.nombre;
+    chkZoom.checked = c.zoom;
+    txtPats.value = c.pats;
+    chkApp.disabled = !c.esweb;
+    chkApp.checked = (c.esweb && c.app == "1");
+  } else {
+    document.getElementById("selnombre").innerText = "(ninguna)";
+  }
+}
+
+function iniciar(c, e, resize) {
+  seleccionar(c);
+  drag = { c: c, resize: resize, ox: e.clientX, oy: e.clientY,
+           l: parseFloat(c.el.style.left), t: parseFloat(c.el.style.top),
+           w: c.el.offsetWidth, h: c.el.offsetHeight };
+}
+
+function crearCaja(f, idx, info) {
+  var c = { nombre: f[0], mon: parseInt(f[1], 10), fx: parseInt(f[2], 10), fy: parseInt(f[3], 10),
+            fw: parseInt(f[4], 10), fh: parseInt(f[5], 10), zoom: (f[6] == "1"), pats: f[7],
+            proc: (f.length > 8 ? f[8] : ""), esweb: info.esweb, app: info.app };
+  if (c.proc === "" && info.esweb) { c.proc = info.nav; }
+  var el = document.createElement("div");
+  el.className = "box";
+  el.style.backgroundColor = colores[idx % colores.length];
+  var lbl = document.createElement("div");
+  lbl.className = "bl";
+  lbl.appendChild(document.createTextNode(c.nombre));
+  el.appendChild(lbl);
+  var modos = ["n", "s", "e", "w", "nw", "ne", "sw", "se"];
+  for (var k = 0; k < modos.length; k++) {
+    (function (m) {
+      var hd = document.createElement("div");
+      hd.className = "h h" + m;
+      hd.onmousedown = function (e) { e = e || window.event; e.cancelBubble = true; iniciar(c, e, m); return false; };
+      el.appendChild(hd);
+    })(modos[k]);
+  }
+  el.onmousedown = function (e) { e = e || window.event; iniciar(c, e, false); return false; };
+  c.el = el;
+  stage.appendChild(el);
+  colocarEl(c);
+  cajas.push(c);
+}
+
+function elegirApp(n) {
+  for (var i = 0; i < cajas.length; i++) { if (cajas[i].nombre === n) { seleccionar(cajas[i]); return; } }
+}
+
+function mapearDiseno() {
+  var d = MapearPantallas().split("|"), n = parseInt(d[0], 10) || 1, w1 = parseInt(d[1], 10) || 1920, h1 = parseInt(d[2], 10) || 1080;
+  var w2 = parseInt(d[3], 10) || 0, h2 = parseInt(d[4], 10) || 0;
+  MH = Math.max(120, Math.min(260, Math.round(MW * h1 / w1)));
+  stage.style.height = (TOP + MH + 6) + "px";
+  var ms = stage.getElementsByTagName("div"), mons = [], lbls = [], i;
+  for (i = 0; i < ms.length; i++) {
+    if (ms[i].className.indexOf("monlbl") === 0) { lbls.push(ms[i]); }
+    else if (ms[i].className.indexOf("mon") === 0) { mons.push(ms[i]); }
+  }
+  for (i = 0; i < mons.length; i++) { mons[i].style.height = MH + "px"; }
+  lbls[0].innerText = "Monitor 1 (principal) " + w1 + "x" + h1;
+  if (n > 1) {
+    lbls[1].innerText = "Monitor 2 " + w2 + "x" + h2;
+    mons[1].className = "mon"; mons[1].innerText = "";
+  } else {
+    lbls[1].innerText = "Monitor 2: no detectado";
+    mons[1].className = "mon monx";
+    mons[1].innerText = "Esta PC tiene un solo monitor: lo que pongas aquí se mostrará en el monitor 1.";
+  }
+  document.getElementById("resumenPantallas").innerText = "Esta PC: " + n + " monitor(es). El diseño se guarda en proporciones, así que se adapta a cualquier resolución.";
+}
+
+function abrirDiseno() {
+  var i, f, nombres = [], mapa = {}, infos = {};
+  mapearDiseno();
+  var apps = LoadList().split("~");
+  for (i = 0; i < apps.length; i++) {
+    if (apps[i].replace(/\s/g, "") === "") { continue; }
+    f = apps[i].split("|");
+    nombres.push(f[0]);
+    var nav = (f.length > 3 ? f[3] : "");
+    infos[f[0]] = { esweb: (f[1] == "url" && (nav == "chrome" || nav == "msedge")), nav: nav, app: (f.length > 4 ? f[4] : "0") };
+  }
+  var lay = LoadLayout().split("~");
+  for (i = 0; i < lay.length; i++) {
+    f = lay[i].split("|");
+    if (f.length >= 8) { mapa[f[0]] = f; }
+  }
+  for (i = 0; i < cajas.length; i++) { stage.removeChild(cajas[i].el); }
+  cajas = []; sel = null;
+  for (i = 0; i < nombres.length; i++) {
+    f = mapa[nombres[i]];
+    if (!f) { var d = (i % 6) * 60; f = [nombres[i], "1", String(d), String(d), "300", "300", "0", nombres[i].split(" ")[0], ""]; }
+    crearCaja(f, i, infos[nombres[i]]);
+  }
+  try { chkIman.checked = (shJ.RegRead(IKEY) != "0"); } catch (e) { chkIman.checked = true; }
+  var sa = document.getElementById("selApp");
+  while (sa.options.length) { sa.remove(0); }
+  for (i = 0; i < cajas.length; i++) { var op = document.createElement("option"); op.text = cajas[i].nombre; op.value = cajas[i].nombre; sa.options.add(op); }
+  seleccionar(cajas.length ? cajas[0] : null);
+  document.getElementById("principal").style.display = "none";
+  document.getElementById("diseno").style.display = "block";
+  window.resizeTo(730, 500 + (MH - 186));
+}
+
+function cerrarDiseno() {
+  document.getElementById("diseno").style.display = "none";
+  document.getElementById("principal").style.display = "block";
+  window.resizeTo(340, 400);
+}
+
+function llenarEscritorios() {
+  var lista = ListaEscritorios().split("~"), sl = document.getElementById("selEsc"), i, f, op, actual = String(EscritorioActual()).toLowerCase(), hay = false;
+  while (sl.options.length) { sl.remove(0); }
+  for (i = 0; i < lista.length; i++) {
+    f = lista[i].split("|");
+    op = document.createElement("option");
+    op.text = f[0] + ". " + f[1]; op.value = lista[i];
+    sl.options.add(op);
+    if (f[1].toLowerCase() === actual) { sl.selectedIndex = i; hay = true; }
+  }
+  if (!hay) { op = document.createElement("option"); op.text = EscritorioActual(); op.value = "0|" + EscritorioActual(); sl.options.add(op); sl.selectedIndex = sl.options.length - 1; }
+}
+
+function elegirEscritorio(v) {
+  var f = v.split("|");
+  SeleccionarEscritorio(parseInt(f[0], 10), f[1]);
+}
+
+function guardarDiseno() {
+  var partes = [], i, c;
+  for (i = 0; i < cajas.length; i++) {
+    c = cajas[i];
+    partes.push([c.nombre, c.mon, c.fx, c.fy, c.fw, c.fh, c.zoom ? 1 : 0, String(c.pats).replace(/[|~]/g, ""), c.proc].join("|"));
+  }
+  shJ.RegWrite(ClaveLayout(), partes.join("~"), "REG_SZ");
+  // Modo aplicación: se guarda en la lista de apps
+  var apps = LoadList().split("~"), nuevo = [], j, g, k;
+  for (j = 0; j < apps.length; j++) {
+    if (apps[j].replace(/\s/g, "") === "") { continue; }
+    g = apps[j].split("|");
+    for (k = 0; k < cajas.length; k++) {
+      if (cajas[k].nombre === g[0] && cajas[k].esweb) { while (g.length < 5) { g.push("0"); } g[4] = cajas[k].app; }
+    }
+    nuevo.push(g.join("|"));
+  }
+  shJ.RegWrite(ClaveApps(), nuevo.join("~"), "REG_SZ");
+  cerrarDiseno();
+}
+
+function restablecerDiseno() {
+  shJ.RegWrite(ClaveLayout(), DefaultLayout(), "REG_SZ");
+  abrirDiseno();
+}
+</script>
+</body>
+</html>
